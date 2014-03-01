@@ -340,7 +340,8 @@ public class LocalRepo {
         apk.added = app.added;
         apk.apkSourcePath = apkFile.getAbsolutePath();
         apk.apkSourceName = apkFile.getName();
-        apk.minSdkVersion = appInfo.targetSdkVersion;
+        // TODO figure out how to get minSdkVersion, its not in ApplicationInfo
+        apk.minSdkVersion = 5;
         apk.id = app.id;
         apk.file = apkFile;
         apk.detail_permissions = packageInfo.requestedPermissions;
