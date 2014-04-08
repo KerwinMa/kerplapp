@@ -61,7 +61,7 @@ public class KerplappActivity extends Activity {
     private int SEND_TEST_REPO = 0x7346;
     private Thread webServerThread = null;
     private Handler handler = null;
-    
+
     private NsdHelper nsdHelper = null;
 
     /** Called when the activity is first created. */
@@ -227,12 +227,22 @@ public class KerplappActivity extends Activity {
         repoSwitch.setTextOff(buttonLabel);
         ImageView repoQrCodeImageView = (ImageView) findViewById(R.id.repoQrCode);
         // fdroidrepo:// and fdroidrepos:// ensures it goes directly to F-Droid
-        Uri fdroidrepoUri = getSharingUri();
+        String fdroidrepoUriString = getSharingUri().toString();
         kerplappRepo.setUriString(repo.address);
-        kerplappRepo.writeIndexPage(fdroidrepoUri);
-        // set URL to UPPER for compact QR Code, FDroid will translate it back
-        Bitmap qrBitmap = Utils.generateQrCode(this,
-                fdroidrepoUri.toString().toUpperCase(Locale.ENGLISH));
+        kerplappRepo.writeIndexPage(fdroidrepoUriString);
+        /*
+         * Set URL to UPPER for compact QR Code, FDroid will translate it back.
+         * Remove the SSID from the query string since SSIDs are case-sensitive.
+         * Instead the receiver will have to rely on the BSSID to find the right
+         * wifi AP to join.  Lots of QR Scanners are buggy and do not respect
+         * custom URI schemes, so we have to use http:// or https:// :-(
+         */
+        String qrUriString = fdroidrepoUriString
+                .replaceFirst("fdroidrepo", "http")
+                .replaceAll("ssid=[^?]*", "")
+                .toUpperCase(Locale.ENGLISH);
+        Log.i("QRURI", qrUriString);
+        Bitmap qrBitmap = Utils.generateQrCode(this, qrUriString);
         repoQrCodeImageView.setImageBitmap(qrBitmap);
 
         TextView wifiNetworkNameTextView = (TextView) findViewById(R.id.wifiNetworkName);

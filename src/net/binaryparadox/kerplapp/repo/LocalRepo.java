@@ -16,7 +16,6 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -137,7 +136,7 @@ public class LocalRepo {
                 throw new IllegalStateException("Unable to create empty index.xml file");
     }
 
-    public void writeIndexPage(Uri repoUri)
+    public void writeIndexPage(String repoAddress)
     {
         String fdroidPkg = "org.fdroid.fdroid";
         ApplicationInfo appInfo;
@@ -164,7 +163,7 @@ public class LocalRepo {
 
             while (in.ready()) { //
                 String line = in.readLine();
-                line = line.replaceAll("\\{\\{REPO_URL\\}\\}", repoUri.toString());
+                line = line.replaceAll("\\{\\{REPO_URL\\}\\}", repoAddress);
                 line = line.replaceAll("\\{\\{CLIENT_URL\\}\\}", fdroidClientURL);
                 out.write(line);
             }
@@ -178,6 +177,17 @@ public class LocalRepo {
             File repoDirIndex = new File(repoDir, "index.html");
             repoDirIndex.delete();
             copyFile(indexHtml.getCanonicalPath(), repoDirIndex);
+            // add in /FDROID/REPO to support bad QR Scanner apps
+            File fdroidCAPS = new File(fdroidDir.getParentFile(), "FDROID");
+            fdroidCAPS.mkdir();
+            File repoCAPS = new File(fdroidCAPS, "REPO");
+            repoCAPS.mkdir();
+            File fdroidCAPSIndex = new File(fdroidCAPS, "index.html");
+            fdroidCAPSIndex.delete();
+            copyFile(indexHtml.getCanonicalPath(), fdroidCAPSIndex);
+            File repoCAPSIndex = new File(repoCAPS, "index.html");
+            repoCAPSIndex.delete();
+            copyFile(indexHtml.getCanonicalPath(), repoCAPSIndex);
         } catch (IOException e) {
             Log.e(TAG, e.getMessage());
         }
