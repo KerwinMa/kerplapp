@@ -10,6 +10,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
+import android.content.res.XmlResourceParser;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
@@ -27,6 +28,8 @@ import net.binaryparadox.kerplapp.Utils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -350,8 +353,7 @@ public class LocalRepo {
         apk.added = app.added;
         apk.apkSourcePath = apkFile.getAbsolutePath();
         apk.apkSourceName = apkFile.getName();
-        // TODO figure out how to get minSdkVersion, its not in ApplicationInfo
-        apk.minSdkVersion = 5;
+        apk.minSdkVersion = getMinSdkVersion(appCtx, packageName);
         apk.id = app.id;
         apk.file = apkFile;
         apk.detail_permissions = packageInfo.requestedPermissions;
@@ -433,6 +435,34 @@ public class LocalRepo {
 
         apps.put(packageName, app);
         return app;
+    }
+
+    /* PackageManager doesn't give us minSdkVersion, so we have to parse it */
+    public int getMinSdkVersion(Context context, String packageName) {
+        try {
+            AssetManager am = context.createPackageContext(packageName, 0).getAssets();
+            XmlResourceParser xml = am.openXmlResourceParser("AndroidManifest.xml");
+            int eventType = xml.getEventType();
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType == XmlPullParser.START_TAG) {
+                    if (xml.getName().equals("uses-sdk")) {
+                        for (int j = 0; j < xml.getAttributeCount(); j++) {
+                            if (xml.getAttributeName(j).equals("minSdkVersion")) {
+                                return Integer.parseInt(xml.getAttributeValue(j));
+                            }
+                        }
+                    }
+                }
+                eventType = xml.nextToken();
+            }
+        } catch (NameNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        }
+        return 8; // some kind of hopeful default
     }
 
     public void removeApp(String packageName) {
