@@ -1,5 +1,5 @@
 
-package net.binaryparadox.kerplapp;
+package org.fdroid.fdroid;
 
 import android.annotation.TargetApi;
 import android.app.Activity;

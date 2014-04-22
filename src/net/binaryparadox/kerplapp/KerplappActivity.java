@@ -39,6 +39,7 @@ import net.binaryparadox.kerplapp.network.NsdHelper;
 import net.binaryparadox.kerplapp.repo.LocalRepo;
 
 import org.fdroid.fdroid.data.Repo;
+import org.fdroid.fdroid.Utils;
 import org.spongycastle.operator.OperatorCreationException;
 
 import java.io.FileNotFoundException;

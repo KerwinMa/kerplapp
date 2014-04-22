@@ -14,6 +14,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.fdroid.fdroid.Utils;
+
 public class QrWizardWifiNetworkActivity extends Activity {
     private static final String TAG = "QrWizardWifiNetworkActivity";
 

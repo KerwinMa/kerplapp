@@ -24,8 +24,8 @@ import android.util.Log;
 import net.binaryparadox.kerplapp.KerplappApplication;
 import net.binaryparadox.kerplapp.KerplappKeyStore;
 import net.binaryparadox.kerplapp.SettingsActivity;
-import net.binaryparadox.kerplapp.Utils;
 
+import org.fdroid.fdroid.Utils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xmlpull.v1.XmlPullParser;

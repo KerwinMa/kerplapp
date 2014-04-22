@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.fdroid.fdroid.Utils;
+
 public class QrWizardDownloadActivity extends Activity {
     private static final String TAG = "QrWizardDownloadActivity";
 
