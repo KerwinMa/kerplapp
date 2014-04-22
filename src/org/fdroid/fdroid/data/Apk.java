@@ -1,5 +1,5 @@
 
-package net.binaryparadox.kerplapp.repo;
+package org.fdroid.fdroid.data;
 
 import java.io.File;
 import java.util.Date;

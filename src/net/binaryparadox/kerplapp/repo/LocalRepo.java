@@ -26,6 +26,8 @@ import net.binaryparadox.kerplapp.KerplappKeyStore;
 import net.binaryparadox.kerplapp.SettingsActivity;
 
 import org.fdroid.fdroid.Utils;
+import org.fdroid.fdroid.data.Apk;
+import org.fdroid.fdroid.data.App;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xmlpull.v1.XmlPullParser;

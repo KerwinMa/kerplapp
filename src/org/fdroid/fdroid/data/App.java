@@ -1,7 +1,8 @@
 
-package net.binaryparadox.kerplapp.repo;
+package org.fdroid.fdroid.data;
 
 import android.content.pm.ApplicationInfo;
+
 
 import java.util.ArrayList;
 import java.util.Date;
