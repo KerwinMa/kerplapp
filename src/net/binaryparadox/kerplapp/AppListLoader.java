@@ -91,17 +91,22 @@ public class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
         List<AppEntry> entries = new ArrayList<AppEntry>(apps.size());
         for (ApplicationInfo applicationInfo : apps) {
             AppEntry entry = new AppEntry(this, applicationInfo);
-            entry.loadLabel(context);
+            PackageInfo packageInfo = null;
 
             // Need to load the package info to get the app version code.
             // We can use the repo dir, the package name and the version code to
             // determine if the app is already in the repo to preselect it.
-            PackageInfo packageInfo = null;
             try {
+                entry.loadLabel(pm);
             	packageInfo = pm.getPackageInfo(entry.getPackageName(), 0);
             } catch (NameNotFoundException e) {
                 Log.e(TAG, e.getMessage());
+                e.printStackTrace();
                 continue; //We need the package info for versionCode, skip this app
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
+                continue;
             }
 
             String apkName = packageInfo.packageName + "_" + packageInfo.versionCode +".apk";

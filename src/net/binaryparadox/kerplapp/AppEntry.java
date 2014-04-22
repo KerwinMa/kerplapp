@@ -20,8 +20,8 @@ https://developer.android.com/reference/android/content/AsyncTaskLoader.html
 
 package net.binaryparadox.kerplapp;
 
-import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 
 import java.io.File;
@@ -89,15 +89,16 @@ public class AppEntry {
         return label;
     }
 
-    public void loadLabel(Context context) {
+    public void loadLabel(PackageManager pm) {
         if (label == null || !mounted) {
-            if (!apkFile.exists()) {
+            if (apkFile.exists()) {
+                mounted = true;
+                CharSequence label = null;
+                label = info.loadLabel(pm);
+                this.label = label != null ? label.toString() : info.packageName;
+            } else {
                 mounted = false;
                 label = info.packageName;
-            } else {
-                mounted = true;
-                CharSequence label = info.loadLabel(context.getPackageManager());
-                this.label = label != null ? label.toString() : info.packageName;
             }
         }
     }
