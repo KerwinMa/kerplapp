@@ -156,7 +156,7 @@ public class LocalRepo {
             File apkFile = new File(appInfo.publicSourceDir);
             File fdroidApkLink = new File(webRoot, "fdroid.client.apk");
             fdroidApkLink.delete();
-            if (copyFile(apkFile.getAbsolutePath(), fdroidApkLink))
+            if (copyFile(apkFile, fdroidApkLink))
                 fdroidClientURL = "/" + fdroidApkLink.getName();
         } catch (NameNotFoundException e) {
             e.printStackTrace();
@@ -181,10 +181,10 @@ public class LocalRepo {
             // the user will always find the bootstrap page.
             File fdroidDirIndex = new File(fdroidDir, "index.html");
             fdroidDirIndex.delete();
-            copyFile(indexHtml.getCanonicalPath(), fdroidDirIndex);
+            copyFile(indexHtml, fdroidDirIndex);
             File repoDirIndex = new File(repoDir, "index.html");
             repoDirIndex.delete();
-            copyFile(indexHtml.getCanonicalPath(), repoDirIndex);
+            copyFile(indexHtml, repoDirIndex);
             // add in /FDROID/REPO to support bad QR Scanner apps
             File fdroidCAPS = new File(fdroidDir.getParentFile(), "FDROID");
             fdroidCAPS.mkdir();
@@ -192,10 +192,10 @@ public class LocalRepo {
             repoCAPS.mkdir();
             File fdroidCAPSIndex = new File(fdroidCAPS, "index.html");
             fdroidCAPSIndex.delete();
-            copyFile(indexHtml.getCanonicalPath(), fdroidCAPSIndex);
+            copyFile(indexHtml, fdroidCAPSIndex);
             File repoCAPSIndex = new File(repoCAPS, "index.html");
             repoCAPSIndex.delete();
-            copyFile(indexHtml.getCanonicalPath(), repoCAPSIndex);
+            copyFile(indexHtml, repoCAPSIndex);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -229,7 +229,7 @@ public class LocalRepo {
 
             for (Apk apk : app.apks) {
                 File outFile = new File(repoDir, apk.apkName);
-                if (!copyFile(apk.apkSourcePath, outFile)) {
+                if (!copyFile(apk.file, outFile)) {
                     throw new IllegalStateException("Unable to copy APK");
                 }
             }
@@ -244,21 +244,21 @@ public class LocalRepo {
         return Build.VERSION.SDK_INT;
     }
 
-    public static boolean copyFile(String inFileName, File outFile) {
+    public static boolean copyFile(File inFile, File outFile) {
         /* use symlinks if they are available, otherwise fall back to copying */
         if (new File("/system/bin/ln").exists()) {
-            return doSymLink(inFileName, outFile);
+            return doSymLink(inFile, outFile);
         } else {
-            return doCopyFile(inFileName, outFile);
+            return doCopyFile(inFile, outFile);
         }
     }
 
-    public static boolean doSymLink(String inFileName, File outFile) {
+    public static boolean doSymLink(File inFile, File outFile) {
         int exitCode = -1;
         try {
             Process sh = Runtime.getRuntime().exec("sh");
             OutputStream out = sh.getOutputStream();
-            String command = "/system/bin/ln -s " + inFileName + " " + outFile + "\nexit\n";
+            String command = "/system/bin/ln -s " + inFile.getAbsolutePath() + " " + outFile + "\nexit\n";
             Log.i(TAG, "Running: " + command);
             out.write(command.getBytes("ASCII"));
 
@@ -282,12 +282,12 @@ public class LocalRepo {
         return exitCode == 0;
     }
 
-    public static boolean doCopyFile(String inFileName, File outFile) {
+    public static boolean doCopyFile(File inFile, File outFile) {
         InputStream inStream = null;
         OutputStream outStream = null;
 
         try {
-            inStream = new FileInputStream(inFileName);
+            inStream = new FileInputStream(inFile);
             outStream = new FileOutputStream(outFile);
 
             return doCopyStream(inStream, outStream);
@@ -356,8 +356,6 @@ public class LocalRepo {
         apk.hashType = "sha256";
         apk.hash = Utils.getBinaryHash(apkFile, apk.hashType);
         apk.added = app.added;
-        apk.apkSourcePath = apkFile.getAbsolutePath();
-        apk.apkSourceName = apkFile.getName();
         apk.minSdkVersion = getMinSdkVersion(appCtx, packageName);
         apk.id = app.id;
         apk.file = apkFile;

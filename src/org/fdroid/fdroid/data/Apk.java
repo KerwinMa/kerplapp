@@ -33,8 +33,6 @@ public class Apk extends ValueObject implements Comparable<Apk> {
     // True if compatible with the device.
     public boolean compatible;
 
-    public String apkSourcePath; // the original path to the APK
-    public String apkSourceName; // the original name of the APK
     public String apkName; // F-Droid style APK name
 
     // If not null, this is the name of the source tarball for the
