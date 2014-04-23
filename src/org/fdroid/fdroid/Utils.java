@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 
@@ -21,6 +22,10 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * The UAppIDUtils class provides static utility methods for calculating
@@ -116,5 +121,67 @@ public class Utils {
             Log.e(TAG, e.getMessage());
         }
         return null;
+    }
+
+    /* this stuff is already included in FDroid */
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd",
+            Locale.ENGLISH);
+
+    public static class CommaSeparatedList implements Iterable<String> {
+        private String value;
+
+        private CommaSeparatedList(String list) {
+            value = list;
+        }
+
+        public static CommaSeparatedList make(List<String> list) {
+            if (list == null || list.size() == 0)
+                return null;
+            else {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < list.size(); i++) {
+                    if (i > 0) {
+                        sb.append(',');
+                    }
+                    sb.append(list.get(i));
+                }
+                return new CommaSeparatedList(sb.toString());
+            }
+        }
+
+        public static CommaSeparatedList make(String list) {
+            if (list == null || list.length() == 0)
+                return null;
+            else
+                return new CommaSeparatedList(list);
+        }
+
+        public static String str(CommaSeparatedList instance) {
+            return (instance == null ? null : instance.toString());
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+
+        public String toPrettyString() {
+            return value.replaceAll(",", ", ");
+        }
+
+        @Override
+        public Iterator<String> iterator() {
+            TextUtils.SimpleStringSplitter splitter = new TextUtils.SimpleStringSplitter(',');
+            splitter.setString(value);
+            return splitter.iterator();
+        }
+
+        public boolean contains(String v) {
+            for (String s : this) {
+                if (s.equals(v))
+                    return true;
+            }
+            return false;
+        }
     }
 }

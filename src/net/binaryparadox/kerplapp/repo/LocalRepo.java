@@ -19,6 +19,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import net.binaryparadox.kerplapp.KerplappApplication;
@@ -49,6 +50,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -143,6 +145,7 @@ public class LocalRepo {
 
     public void writeIndexPage(String repoAddress)
     {
+        // TODO replace with getApplication.getPackagename() in FDroid
         String fdroidPkg = "org.fdroid.fdroid";
         ApplicationInfo appInfo;
 
@@ -350,26 +353,30 @@ public class LocalRepo {
         Apk apk = new Apk();
         apk.version = packageInfo.versionName;
         apk.vercode = packageInfo.versionCode;
-        apk.detail_hashType = "sha256";
-        apk.detail_hash = Utils.getBinaryHash(apkFile, apk.detail_hashType);
+        apk.hashType = "sha256";
+        apk.hash = Utils.getBinaryHash(apkFile, apk.hashType);
         apk.added = app.added;
         apk.apkSourcePath = apkFile.getAbsolutePath();
         apk.apkSourceName = apkFile.getName();
         apk.minSdkVersion = getMinSdkVersion(appCtx, packageName);
         apk.id = app.id;
         apk.file = apkFile;
-        apk.detail_permissions = packageInfo.requestedPermissions;
+        if (packageInfo.requestedPermissions == null)
+            apk.permissions = null;
+        else
+            apk.permissions = Utils.CommaSeparatedList.make(
+                    Arrays.asList(packageInfo.requestedPermissions));
         apk.apkName = apk.id + "_" + apk.vercode + ".apk";
 
         FeatureInfo[] features = packageInfo.reqFeatures;
 
         if (features != null && features.length > 0) {
-            String[] featureNames = new String[features.length];
+            List<String> featureNames = new ArrayList<String>(features.length);
 
             for (int i = 0; i < features.length; i++)
-                featureNames[i] = features[i].name;
+                featureNames.add(features[i].name);
 
-            apk.features = featureNames;
+            apk.features = Utils.CommaSeparatedList.make(featureNames);
         }
 
         // Signature[] sigs = pkgInfo.signatures;
@@ -651,8 +658,8 @@ public class LocalRepo {
                 packageNode.appendChild(apkname);
 
                 Element hash = doc.createElement("hash");
-                hash.setAttribute("type", apk.detail_hashType);
-                hash.setTextContent(apk.detail_hash.toLowerCase(Locale.US));
+                hash.setAttribute("type", apk.hashType);
+                hash.setTextContent(apk.hash.toLowerCase(Locale.US));
                 packageNode.appendChild(hash);
 
                 Element sig = doc.createElement("sig");
@@ -672,32 +679,21 @@ public class LocalRepo {
                 packageNode.appendChild(apkAdded);
 
                 Element features = doc.createElement("features");
-                if (apk.features != null && apk.features.length > 0) {
-                    StringBuilder buff = new StringBuilder();
-
-                    for (int i = 0; i < apk.features.length; i++) {
-                        buff.append(apk.features[i]);
-
-                        if (i != apk.features.length - 1)
-                            buff.append(",");
-                    }
-
-                    features.setTextContent(buff.toString());
-                }
+                if (apk.features != null)
+                    features.setTextContent(Utils.CommaSeparatedList.str(apk.features));
                 packageNode.appendChild(features);
 
                 Element permissions = doc.createElement("permissions");
-                if (apk.detail_permissions != null && apk.detail_permissions.length > 0) {
+                if (apk.permissions != null) {
                     StringBuilder buff = new StringBuilder();
 
-                    for (int i = 0; i < apk.detail_permissions.length; i++) {
-                        buff.append(apk.detail_permissions[i].replace("android.permission.", ""));
-
-                        if (i != apk.detail_permissions.length - 1)
-                            buff.append(",");
+                    for (String permission : apk.permissions) {
+                        buff.append(permission.replace("android.permission.", ""));
+                        buff.append(",");
                     }
-
-                    permissions.setTextContent(buff.toString());
+                    String out = buff.toString();
+                    if (!TextUtils.isEmpty(out))
+                        permissions.setTextContent(out.substring(0, out.length() - 1));
                 }
                 packageNode.appendChild(permissions);
 
