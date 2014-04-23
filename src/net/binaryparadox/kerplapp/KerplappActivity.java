@@ -35,7 +35,6 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import net.binaryparadox.kerplapp.network.KerplappHTTPD;
-import net.binaryparadox.kerplapp.network.NsdHelper;
 import net.binaryparadox.kerplapp.repo.LocalRepo;
 
 import org.fdroid.fdroid.Utils;
@@ -63,8 +62,6 @@ public class KerplappActivity extends Activity {
     private Thread webServerThread = null;
     private Handler handler = null;
 
-    private NsdHelper nsdHelper = null;
-
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,11 +70,6 @@ public class KerplappActivity extends Activity {
 
         repoSwitch = (ToggleButton) findViewById(R.id.repoSwitch);
         wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-
-        if (Build.VERSION.SDK_INT > 15) {
-            nsdHelper = new NsdHelper(this);
-            nsdHelper.initializeNsd();
-        }
     }
 
     @Override
@@ -329,7 +321,6 @@ public class KerplappActivity extends Activity {
     private void startWebServer() {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         final boolean useHttps = prefs.getBoolean("use_https", false);
-        final boolean useNSD   = prefs.getBoolean("use_nsd", true);
 
         Runnable webServer = new Runnable() {
             @SuppressLint("HandlerLeak") //Tell Eclipse this is not a leak because of Looper use.
@@ -346,12 +337,6 @@ public class KerplappActivity extends Activity {
                     kerplappSrv.enableHTTPS(keyStore);
                 }
 
-                if(nsdHelper != null && useNSD)
-                {
-                    Log.i(TAG, "Registering Kerplapp service with NSD");
-                    nsdHelper.registerService(KerplappApplication.port);
-                }
-
                 Looper.prepare(); // must be run before creating a Handler
                 handler = new Handler() {
                     @Override
@@ -359,11 +344,6 @@ public class KerplappActivity extends Activity {
                         // the only message this Thread responds to is STOP!
                         Log.i(TAG, "we've been asked to stop the webserver: " + msg.obj);
                         kerplappSrv.stop();
-
-                        if (nsdHelper != null)
-                        {
-                            nsdHelper.tearDown();
-                        }
                     }
                 };
                 try {
