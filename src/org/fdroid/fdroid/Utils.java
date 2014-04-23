@@ -14,6 +14,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.encode.Contents;
 import com.google.zxing.encode.QRCodeEncoder;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -45,14 +46,16 @@ public class Utils {
 
     public static String getBinaryHash(File apk, String algo) {
         FileInputStream fis = null;
+        BufferedInputStream bis = null;
         try {
             MessageDigest md = MessageDigest.getInstance(algo);
             fis = new FileInputStream(apk);
+            bis = new BufferedInputStream(fis);
 
-            byte[] dataBytes = new byte[1024];
+            byte[] dataBytes = new byte[524288];
             int nread = 0;
 
-            while ((nread = fis.read(dataBytes)) != -1)
+            while ((nread = bis.read(dataBytes)) != -1)
                 md.update(dataBytes, 0, nread);
 
             byte[] mdbytes = md.digest();
