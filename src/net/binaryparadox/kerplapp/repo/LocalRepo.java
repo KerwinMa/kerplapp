@@ -156,7 +156,7 @@ public class LocalRepo {
             if (copyFile(apkFile.getAbsolutePath(), fdroidApkLink))
                 fdroidClientURL = "/" + fdroidApkLink.getName();
         } catch (NameNotFoundException e) {
-            // nop
+            e.printStackTrace();
         }
 
         try {
@@ -194,7 +194,7 @@ public class LocalRepo {
             repoCAPSIndex.delete();
             copyFile(indexHtml.getCanonicalPath(), repoCAPSIndex);
         } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -269,10 +269,10 @@ public class LocalRepo {
 
             exitCode = sh.waitFor();
         } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
             return false;
         } catch (InterruptedException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
             return false;
         }
         Log.i(TAG, "symlink exitcode: " + exitCode);
@@ -289,7 +289,7 @@ public class LocalRepo {
 
             return doCopyStream(inStream, outStream);
         } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
@@ -307,7 +307,7 @@ public class LocalRepo {
             outStream.close();
             return true;
         } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
@@ -325,7 +325,7 @@ public class LocalRepo {
             packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_SIGNATURES
                     | PackageManager.GET_PERMISSIONS);
         } catch (NameNotFoundException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
             return null;
         }
 

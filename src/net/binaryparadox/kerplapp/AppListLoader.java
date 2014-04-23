@@ -29,7 +29,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.support.v4.content.AsyncTaskLoader;
-import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -100,11 +99,9 @@ public class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
                 entry.loadLabel(pm);
             	packageInfo = pm.getPackageInfo(entry.getPackageName(), 0);
             } catch (NameNotFoundException e) {
-                Log.e(TAG, e.getMessage());
                 e.printStackTrace();
                 continue; //We need the package info for versionCode, skip this app
             } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
                 e.printStackTrace();
                 continue;
             }

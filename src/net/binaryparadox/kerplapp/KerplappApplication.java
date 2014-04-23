@@ -3,7 +3,6 @@ package net.binaryparadox.kerplapp;
 
 import android.app.Application;
 import android.content.Context;
-import android.util.Log;
 
 import net.binaryparadox.kerplapp.repo.LocalRepo;
 
@@ -45,7 +44,7 @@ public class KerplappApplication extends Application {
             try {
                 localRepo.init();
             } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
             }
         }
 
@@ -53,17 +52,17 @@ public class KerplappApplication extends Application {
             try {
                 keystore = new KerplappKeyStore(keyStoreFile);
             } catch (UnrecoverableKeyException e) {
-                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
             } catch (KeyStoreException e) {
-                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
             } catch (NoSuchAlgorithmException e) {
-                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
             } catch (CertificateException e) {
-                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
             } catch (OperatorCreationException e) {
-                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
             } catch (IOException e) {
-                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
             }
         }
     }

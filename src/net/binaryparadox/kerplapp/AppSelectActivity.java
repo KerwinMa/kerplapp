@@ -96,7 +96,7 @@ public class AppSelectActivity extends FragmentActivity {
                     }
                 }.execute();
             } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
             }
             return null;
         }

@@ -1,8 +1,6 @@
 
 package net.binaryparadox.kerplapp;
 
-import android.util.Log;
-
 import org.spongycastle.asn1.ASN1Sequence;
 import org.spongycastle.asn1.x500.X500Name;
 import org.spongycastle.asn1.x509.GeneralName;
@@ -167,21 +165,21 @@ public class KerplappKeyStore {
             zipSigner.signZip(input.getAbsolutePath(), output.getAbsolutePath());
 
         } catch (ClassNotFoundException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         } catch (IllegalAccessException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         } catch (InstantiationException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         } catch (KeyStoreException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         } catch (UnrecoverableKeyException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         } catch (GeneralSecurityException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -221,7 +219,7 @@ public class KerplappKeyStore {
                 formatter.close();
             }
         } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
 
         return ret;

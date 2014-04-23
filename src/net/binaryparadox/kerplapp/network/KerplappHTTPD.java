@@ -1,17 +1,15 @@
 
 package net.binaryparadox.kerplapp.network;
 
-import android.util.Log;
-
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.SimpleWebServer;
+
+import net.binaryparadox.kerplapp.KerplappKeyStore;
 
 import java.io.File;
 import java.io.IOException;
 
 import javax.net.ssl.SSLServerSocketFactory;
-
-import net.binaryparadox.kerplapp.KerplappKeyStore;
 
 public class KerplappHTTPD extends SimpleWebServer {
     private static final String TAG = "KerplappHTTPD";
@@ -27,7 +25,7 @@ public class KerplappHTTPD extends SimpleWebServer {
                     keystore.getKeyManagers());
             makeSecure(factory);
         } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
     }
 }

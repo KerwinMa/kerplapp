@@ -38,8 +38,8 @@ import net.binaryparadox.kerplapp.network.KerplappHTTPD;
 import net.binaryparadox.kerplapp.network.NsdHelper;
 import net.binaryparadox.kerplapp.repo.LocalRepo;
 
-import org.fdroid.fdroid.data.Repo;
 import org.fdroid.fdroid.Utils;
+import org.fdroid.fdroid.data.Repo;
 import org.spongycastle.operator.OperatorCreationException;
 
 import java.io.FileNotFoundException;
@@ -264,19 +264,19 @@ public class KerplappActivity extends Activity {
         try {
             keyStore.setupHTTPSCertificate(KerplappApplication.ipAddressString);
         } catch (UnrecoverableKeyException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         } catch (CertificateException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         } catch (OperatorCreationException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         } catch (KeyStoreException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         } catch (FileNotFoundException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
 
         // the required NFC API was added in 4.0 aka Ice Cream Sandwich
@@ -310,7 +310,7 @@ public class KerplappActivity extends Activity {
                 }
                 Log.i(TAG, "2");
             } catch (InterruptedException e) {
-                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
             }
             return null;
         }
@@ -369,7 +369,7 @@ public class KerplappActivity extends Activity {
                 try {
                     kerplappSrv.start();
                 } catch (IOException e) {
-                    Log.e(TAG, e.getMessage());
+                    e.printStackTrace();
                 }
                 Looper.loop(); // start the message receiving loop
             }
