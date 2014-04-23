@@ -229,7 +229,7 @@ public class LocalRepo {
 
             for (Apk apk : app.apks) {
                 File outFile = new File(repoDir, apk.apkName);
-                if (!copyFile(apk.file, outFile)) {
+                if (!copyFile(apk.installedFile, outFile)) {
                     throw new IllegalStateException("Unable to copy APK");
                 }
             }
@@ -358,7 +358,7 @@ public class LocalRepo {
         apk.added = app.added;
         apk.minSdkVersion = getMinSdkVersion(appCtx, packageName);
         apk.id = app.id;
-        apk.file = apkFile;
+        apk.installedFile = apkFile;
         if (packageInfo.requestedPermissions == null)
             apk.permissions = null;
         else
@@ -493,7 +493,7 @@ public class LocalRepo {
         if (app.apks == null || app.apks.size() != 1)
             return false;
 
-        File apkFile = app.apks.get(0).file;
+        File apkFile = app.apks.get(0).installedFile;
         if (apkFile == null || !apkFile.canRead())
             return false;
 
@@ -665,7 +665,7 @@ public class LocalRepo {
                 packageNode.appendChild(sig);
 
                 Element size = doc.createElement("size");
-                size.setTextContent(String.valueOf(apk.file.length()));
+                size.setTextContent(String.valueOf(apk.installedFile.length()));
                 packageNode.appendChild(size);
 
                 Element sdkver = doc.createElement("sdkver");

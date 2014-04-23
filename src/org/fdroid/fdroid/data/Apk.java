@@ -8,7 +8,6 @@ import java.io.File;
 import java.util.Date;
 
 public class Apk extends ValueObject implements Comparable<Apk> {
-    public File file;
 
     public String id;
     public String version;
@@ -34,6 +33,7 @@ public class Apk extends ValueObject implements Comparable<Apk> {
     public boolean compatible;
 
     public String apkName; // F-Droid style APK name
+    public File installedFile; // the .apk file on this device's filesystem
 
     // If not null, this is the name of the source tarball for the
     // application. Null indicates that it's a developer's binary
