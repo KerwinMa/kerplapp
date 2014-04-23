@@ -38,19 +38,9 @@ public class Utils {
             md.reset();
             return hash;
         } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "Device does not support SHA1 MessageDisgest algorithm");
+            Log.e(TAG, "Device does not support " + algo + " MessageDisgest algorithm");
             return null;
         }
-    }
-
-    /**
-     * Computes the SHA1 hash of a binary file.
-     *
-     * @param apkPath the path to a binary file to hash.
-     * @return the SHA1 hash of the file provided as an argument.
-     */
-    public static String getBinaryHash(File apk) {
-        return getBinaryHash(apk, "SHA1");
     }
 
     public static String getBinaryHash(File apk, String algo) {
@@ -71,7 +61,7 @@ public class Utils {
             Log.e(TAG, "Error reading \"" + apk.getAbsolutePath() + "\" to compute SHA1 hash.");
             return null;
         } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "Device does not support SHA1 MessageDisgest algorithm");
+            Log.e(TAG, "Device does not support " + algo + " MessageDisgest algorithm");
             return null;
         } finally {
             if (fis != null)
@@ -93,7 +83,6 @@ public class Utils {
         BigInteger bi = new BigInteger(1, bytes);
         return String.format("%0" + (bytes.length << 1) + "X", bi);
     }
-
 
     @SuppressWarnings("deprecation")
     @TargetApi(13)
