@@ -53,11 +53,6 @@ public class Repo {
         return address;
     }
 
-    public int getNumberOfApps() {
-        // not used in Kerplapp
-        return -1;
-    }
-
     public boolean isSigned() {
         return this.pubkey != null && this.pubkey.length() > 0;
     }
@@ -65,11 +60,10 @@ public class Repo {
     public boolean hasBeenUpdated() {
         return this.lastetag != null;
     }
-
     /**
-     * If we haven't run an update for this repo yet, then the name will be
-     * unknown, in which case we will just take a guess at an appropriate name
-     * based on the url (e.g. "fdroid.org/archive")
+     * If we haven't run an update for this repo yet, then the name
+     * will be unknown, in which case we will just take a guess at an
+     * appropriate name based on the url (e.g. "fdroid.org/archive")
      */
     public static String addressToName(String address) {
         String tempName;
