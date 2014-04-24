@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -57,8 +58,9 @@ public class KerplappActivity extends Activity {
     private ToggleButton repoSwitch;
     private Repo repo = new Repo();
 
-    private int SET_IP_ADDRESS = 0x7345;
-    private int SEND_TEST_REPO = 0x7346;
+    private int SET_IP_ADDRESS = 7345;
+    private int UPDATE_REPO = 7346;
+    private int SEND_TEST_REPO = 7347;
     private Thread webServerThread = null;
     private Handler handler = null;
 
@@ -111,7 +113,7 @@ public class KerplappActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_setup_repo:
-                startActivityForResult(new Intent(this, AppSelectActivity.class), SET_IP_ADDRESS);
+                startActivityForResult(new Intent(this, AppSelectActivity.class), UPDATE_REPO);
                 return true;
             case R.id.menu_send_fdroid_via_wifi:
                 if (!repoSwitch.isChecked()) {
@@ -141,8 +143,14 @@ public class KerplappActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == SET_IP_ADDRESS && resultCode == Activity.RESULT_OK) {
+        if (resultCode != Activity.RESULT_OK)
+            return;
+        if (requestCode == SET_IP_ADDRESS) {
             setIpAddressFromWifi();
+        } else if (requestCode == UPDATE_REPO) {
+            setIpAddressFromWifi();
+            new UpdateAsyncTask(this, KerplappApplication.selectedApps.toArray(new String[0]))
+                    .execute();
         } else if (requestCode == SEND_TEST_REPO) {
             Intent intent = new Intent();
             intent.setClassName("org.fdroid.fdroid", "org.fdroid.fdroid.ManageRepo");
@@ -227,7 +235,7 @@ public class KerplappActivity extends Activity {
          * Set URL to UPPER for compact QR Code, FDroid will translate it back.
          * Remove the SSID from the query string since SSIDs are case-sensitive.
          * Instead the receiver will have to rely on the BSSID to find the right
-         * wifi AP to join.  Lots of QR Scanners are buggy and do not respect
+         * wifi AP to join. Lots of QR Scanners are buggy and do not respect
          * custom URI schemes, so we have to use http:// or https:// :-(
          */
         String qrUriString = fdroidrepoUriString
@@ -391,6 +399,69 @@ public class KerplappActivity extends Activity {
                 b.appendQueryParameter("ssid", Uri.encode(ssid));
         }
         return b.build();
+    }
+
+    class UpdateAsyncTask extends AsyncTask<Void, String, Void> {
+        private static final String TAG = "UpdateAsyncTask";
+        private ProgressDialog progressDialog;
+        private String[] selectedApps;
+
+        public UpdateAsyncTask(Context c, String[] apps) {
+            selectedApps = apps;
+            progressDialog = new ProgressDialog(c);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setTitle(R.string.updating);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            final LocalRepo repo = ((KerplappApplication) getApplication()).getLocalRepo();
+            try {
+                publishProgress(getString(R.string.deleting_repo));
+                repo.deleteRepo();
+                for (String app : selectedApps) {
+                    publishProgress(String.format(getString(R.string.adding_apks_format), app));
+                    repo.addApp(app);
+                }
+                publishProgress(getString(R.string.writing_index_xml));
+                repo.writeIndexXML();
+                publishProgress(getString(R.string.writing_index_jar));
+                repo.writeIndexJar();
+                publishProgress(getString(R.string.linking_apks));
+                repo.copyApksToRepo();
+                publishProgress(getString(R.string.copying_icons));
+                // run the icon copy without progress, its not a blocker
+                new AsyncTask<Void, Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        repo.copyIconsToRepo();
+                        return null;
+                    }
+                }.execute();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... progress) {
+            super.onProgressUpdate(progress);
+            progressDialog.setMessage(progress[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            progressDialog.dismiss();
+            Toast.makeText(getBaseContext(), R.string.updated_local_repo, Toast.LENGTH_SHORT)
+                    .show();
+        }
     }
 
 }

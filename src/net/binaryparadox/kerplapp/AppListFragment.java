@@ -20,27 +20,30 @@ https://developer.android.com/reference/android/content/AsyncTaskLoader.html
 
 package net.binaryparadox.kerplapp;
 
+import android.annotation.TargetApi;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.view.ActionMode;
 import android.view.View;
 import android.widget.ListView;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class AppListFragment extends ListFragment implements LoaderCallbacks<List<AppEntry>> {
 
     private AppListAdapter adapter;
-    private Set<String> selectedApps = new HashSet<String>();
+    private AppSelectActivity appSelectActivity;
+    private ActionMode mActionMode = null;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         setEmptyText(getString(R.string.no_applications_found));
+
+        appSelectActivity = (AppSelectActivity) getActivity();
 
         adapter = new AppListAdapter(getActivity());
         setListAdapter(adapter);
@@ -51,19 +54,19 @@ public class AppListFragment extends ListFragment implements LoaderCallbacks<Lis
         getLoaderManager().initLoader(0, null, this);
     }
 
-    public String[] getSelectedApps() {
-        return selectedApps.toArray(new String[0]);
-    }
-
+    @TargetApi(11)
+    // TODO replace with appcompat-v7
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
+        if (mActionMode == null)
+            mActionMode = appSelectActivity.startActionMode(appSelectActivity.mActionModeCallback);
         AppEntry appEntry = (AppEntry) adapter.getItem(position);
         appEntry.setEnabled(!appEntry.isEnabled());
         if (appEntry.isEnabled()) {
-            selectedApps.add(appEntry.getPackageName());
+            KerplappApplication.selectedApps.add(appEntry.getPackageName());
             v.setBackgroundColor(getResources().getColor(R.color.app_selected));
         } else {
-            selectedApps.remove(appEntry.getPackageName());
+            KerplappApplication.selectedApps.remove(appEntry.getPackageName());
             v.setBackgroundColor(getResources().getColor(android.R.color.background_dark));
         }
     }
@@ -85,8 +88,8 @@ public class AppListFragment extends ListFragment implements LoaderCallbacks<Lis
         // have to click the highlighted row for it to be added to the Set
         // otherwise it is just visually selected and not logically selected.
         for (AppEntry e : data) {
-            if (e.isEnabled() && !selectedApps.contains(e))
-                selectedApps.add(e.getPackageName());
+            if (e.isEnabled() && !KerplappApplication.selectedApps.contains(e))
+                KerplappApplication.selectedApps.add(e.getPackageName());
         }
 
         // The list should now be shown

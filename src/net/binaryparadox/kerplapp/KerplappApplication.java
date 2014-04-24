@@ -14,6 +14,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.HashSet;
+import java.util.Set;
 
 public class KerplappApplication extends Application {
     private static final String TAG = "KerplappApplication";
@@ -24,6 +26,7 @@ public class KerplappApplication extends Application {
     static int ipAddress = 0;
     static int port = 8888;
     static String ipAddressString = null;
+    static Set<String> selectedApps = new HashSet<String>();
 
     private LocalRepo localRepo = null;
     private KerplappKeyStore keystore = null;
@@ -32,7 +35,7 @@ public class KerplappApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        //Apply the Google PRNG fixes to properly seed SecureRandom
+        // Apply the Google PRNG fixes to properly seed SecureRandom
         PRNGFixes.apply();
 
         File appKeyStoreDir = getDir(keyStoreDirName, Context.MODE_PRIVATE);

@@ -1,20 +1,17 @@
 
 package net.binaryparadox.kerplapp;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
+import android.annotation.TargetApi;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
+import android.view.ActionMode;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import net.binaryparadox.kerplapp.repo.LocalRepo;
-
+@TargetApi(11)
+// TODO replace with appcompat-v7
 public class AppSelectActivity extends FragmentActivity {
     private final String TAG = "AppSelectActivity";
     private AppListFragment appListFragment = null;
@@ -35,7 +32,6 @@ public class AppSelectActivity extends FragmentActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.app_select_activity, menu);
         return true;
     }
@@ -44,7 +40,8 @@ public class AppSelectActivity extends FragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                new UpdateAsyncTask(this, appListFragment.getSelectedApps()).execute();
+                setResult(RESULT_CANCELED);
+                finish();
                 return true;
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
@@ -53,67 +50,36 @@ public class AppSelectActivity extends FragmentActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    class UpdateAsyncTask extends AsyncTask<Void, String, Void> {
-        private ProgressDialog progressDialog;
-        private String[] selectedApps;
+    ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
 
-        public UpdateAsyncTask(Context c, String[] apps) {
-            selectedApps = apps;
-            progressDialog = new ProgressDialog(c);
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressDialog.setTitle(R.string.updating);
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.app_select_action_mode, menu);
+            return true;
         }
 
         @Override
-        protected void onPreExecute() {
-            progressDialog.show();
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false; // Return false if nothing is done
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
-            final LocalRepo repo = ((KerplappApplication) getApplication()).getLocalRepo();
-            try {
-                publishProgress(getString(R.string.deleting_repo));
-                repo.deleteRepo();
-                for (String app : selectedApps) {
-                    publishProgress(String.format(getString(R.string.adding_apks_format), app));
-                    repo.addApp(app);
-                }
-                publishProgress(getString(R.string.writing_index_xml));
-                repo.writeIndexXML();
-                publishProgress(getString(R.string.writing_index_jar));
-                repo.writeIndexJar();
-                publishProgress(getString(R.string.linking_apks));
-                repo.copyApksToRepo();
-                publishProgress(getString(R.string.copying_icons));
-                // run the icon copy without progress, its not a blocker
-                new AsyncTask<Void, Void, Void>() {
-
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        repo.copyIconsToRepo();
-                        return null;
-                    }
-                }.execute();
-            } catch (Exception e) {
-                e.printStackTrace();
+        public boolean onActionItemClicked(final ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_update_repo:
+                    setResult(RESULT_OK);
+                    finish();
+                    return true;
+                default:
+                    return false;
             }
-            return null;
         }
 
         @Override
-        protected void onProgressUpdate(String... progress) {
-            super.onProgressUpdate(progress);
-            progressDialog.setMessage(progress[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            progressDialog.dismiss();
-            setResult(Activity.RESULT_OK);
-            Toast.makeText(getBaseContext(), R.string.updated_local_repo, Toast.LENGTH_SHORT)
-                    .show();
+        public void onDestroyActionMode(ActionMode mode) {
+            setResult(RESULT_CANCELED);
             finish();
         }
-    }
+    };
 }
