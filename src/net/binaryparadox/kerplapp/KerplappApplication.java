@@ -23,9 +23,9 @@ public class KerplappApplication extends Application {
     private static final String keyStoreFileName = "kerplapp.bks";
 
     // the local repo on this device
-    static int ipAddress = 0;
-    static int port = 8888;
-    static String ipAddressString = null;
+    public static int ipAddress = 0;
+    public static int port = 8888;
+    public static String ipAddressString = null;
     static Set<String> selectedApps = new HashSet<String>();
 
     private LocalRepo localRepo = null;

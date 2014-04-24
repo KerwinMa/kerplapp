@@ -1,13 +1,14 @@
 
 package net.binaryparadox.kerplapp;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -20,9 +21,7 @@ import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -35,8 +34,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import net.binaryparadox.kerplapp.network.KerplappHTTPD;
 import net.binaryparadox.kerplapp.repo.LocalRepo;
+import net.binaryparadox.kerplapp.repo.LocalRepoService;
 
 import org.fdroid.fdroid.Utils;
 import org.fdroid.fdroid.data.Repo;
@@ -61,8 +60,6 @@ public class KerplappActivity extends Activity {
     private int SET_IP_ADDRESS = 7345;
     private int UPDATE_REPO = 7346;
     private int SEND_TEST_REPO = 7347;
-    private Thread webServerThread = null;
-    private Handler handler = null;
 
     /** Called when the activity is first created. */
     @Override
@@ -83,8 +80,8 @@ public class KerplappActivity extends Activity {
             if (KerplappApplication.ipAddress != wifiInfo.getIpAddress()) {
                 setIpAddressFromWifi();
                 if (repoSwitch.isChecked()) {
-                    stopWebServer();
-                    startWebServer();
+                    // TODO why? stopWebServer();
+                    // TODO why? startWebServer();
                 }
             }
 
@@ -117,7 +114,7 @@ public class KerplappActivity extends Activity {
                 return true;
             case R.id.menu_send_fdroid_via_wifi:
                 if (!repoSwitch.isChecked()) {
-                    startWebServer();
+                    bindService();
                     repoSwitch.setChecked(true);
                 }
                 startActivity(new Intent(this, QrWizardWifiNetworkActivity.class));
@@ -184,10 +181,11 @@ public class KerplappActivity extends Activity {
         repoSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (repoSwitch.isChecked())
-                    startWebServer();
-                else
-                    stopWebServer();
+                if (repoSwitch.isChecked()) {
+                    bindService();
+                } else {
+                    unbindService();
+                }
             }
         });
     }
@@ -326,63 +324,10 @@ public class KerplappActivity extends Activity {
         }
     }
 
-    private void startWebServer() {
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        final boolean useHttps = prefs.getBoolean("use_https", false);
-
-        Runnable webServer = new Runnable() {
-            @SuppressLint("HandlerLeak") //Tell Eclipse this is not a leak because of Looper use.
-            @Override
-            public void run() {
-                final KerplappHTTPD kerplappSrv = new KerplappHTTPD(
-                        KerplappApplication.ipAddressString,
-                        KerplappApplication.port, getFilesDir(), false);
-
-                if (useHttps)
-                {
-                    KerplappApplication appCtx = (KerplappApplication) getApplication();
-                    KerplappKeyStore keyStore = appCtx.getKeyStore();
-                    kerplappSrv.enableHTTPS(keyStore);
-                }
-
-                Looper.prepare(); // must be run before creating a Handler
-                handler = new Handler() {
-                    @Override
-                    public void handleMessage(Message msg) {
-                        // the only message this Thread responds to is STOP!
-                        Log.i(TAG, "we've been asked to stop the webserver: " + msg.obj);
-                        kerplappSrv.stop();
-                    }
-                };
-                try {
-                    kerplappSrv.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                Looper.loop(); // start the message receiving loop
-            }
-        };
-        webServerThread = new Thread(webServer);
-        webServerThread.start();
-    }
-
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         // ignore orientation/keyboard change
         super.onConfigurationChanged(newConfig);
-    }
-
-    private void stopWebServer() {
-        Log.i(TAG, "stop the webserver");
-        if (handler == null) {
-            Log.i(TAG, "null handler in stopWebServer");
-            return;
-        }
-        Message msg = handler.obtainMessage();
-        msg.obj = handler.getLooper().getThread().getName() + " says stop";
-        handler.sendMessage(msg);
-
-        super.onPause();
     }
 
     // this is from F-Droid RepoDetailsActivity
@@ -464,4 +409,49 @@ public class KerplappActivity extends Activity {
         }
     }
 
+    private LocalRepoService mBoundService;
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // This is called when the connection with the service has been
+            // established, giving us the service object we can use to
+            // interact with the service. Because we have bound to a explicit
+            // service that we know is running in our own process, we can
+            // cast its IBinder to a concrete class and directly access it.
+            mBoundService = ((LocalRepoService.LocalRepoBinder) service).getService();
+
+            // Tell the user about this for our demo.
+
+            Toast.makeText(getBaseContext(), "local repo service connected",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName className) {
+            // This is called when the connection with the service has been
+            // unexpectedly disconnected -- that is, its process crashed.
+            // Because it is running in our same process, we should never
+            // see this happen.
+            mBoundService = null;
+            Toast.makeText(getBaseContext(), "local repo service disconnected",
+                    Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    void bindService() {
+        // Establish a connection with the service. We use an explicit
+        // class name because we want a specific service implementation that
+        // we know will be running in our own process (and thus won't be
+        // supporting component replacement by other applications).
+        bindService(new Intent(this, LocalRepoService.class),
+                serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    void unbindService() {
+        if (mBoundService != null) {
+            // Detach our existing connection.
+            unbindService(serviceConnection);
+        }
+    }
 }

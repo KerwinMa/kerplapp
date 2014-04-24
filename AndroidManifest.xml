@@ -48,6 +48,8 @@
         <activity android:name=".SettingsActivity" />
         <activity android:name=".QrWizardDownloadActivity" />
         <activity android:name=".QrWizardWifiNetworkActivity" />
+
+        <service android:name=".repo.LocalRepoService" />
     </application>
 
 </manifest>
