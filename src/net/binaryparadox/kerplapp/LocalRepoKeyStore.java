@@ -48,7 +48,7 @@ import javax.net.ssl.X509KeyManager;
 
 import kellinwood.security.zipsigner.ZipSigner;
 
-public class KerplappKeyStore {
+public class LocalRepoKeyStore {
     // TODO: Address exception handling in a uniform way across the KeyStore & application
 
     static {
@@ -71,7 +71,7 @@ public class KerplappKeyStore {
     private KeyManager[] keyManagers;
     private File backingFile;
 
-    public KerplappKeyStore(File backingFile) throws KeyStoreException, NoSuchAlgorithmException,
+    public LocalRepoKeyStore(File backingFile) throws KeyStoreException, NoSuchAlgorithmException,
             CertificateException, IOException, OperatorCreationException, UnrecoverableKeyException {
         this.backingFile = backingFile;
         this.keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -86,10 +86,12 @@ public class KerplappKeyStore {
             keyStore.load(new FileInputStream(backingFile), "".toCharArray());
         }
 
-        // If the keystore we loaded doesn't have an INDEX_CERT_ALIAS entry we need
-        // to generate a new random keypair and a self signed certificate for this
-        // slot
-        if(keyStore.getKey(INDEX_CERT_ALIAS, "".toCharArray()) == null)
+        /*
+         * If the keystore we loaded doesn't have an INDEX_CERT_ALIAS entry we
+         * need to generate a new random keypair and a self signed certificate
+         * for this slot.
+         */
+        if (keyStore.getKey(INDEX_CERT_ALIAS, "".toCharArray()) == null)
         {
             // Generate a random key pair to associate with the INDEX_CERT_ALIAS
             // certificate in the keystore. This keypair will be used for the
@@ -104,7 +106,6 @@ public class KerplappKeyStore {
 
             addToStore(INDEX_CERT_ALIAS, rndKeys, indexCert);
         }
-
 
         // Kerplapp uses its own KeyManager to to ensure the correct keystore
         // alias is used for the correct purpose. With the default key manager
@@ -122,19 +123,22 @@ public class KerplappKeyStore {
         };
     }
 
-    public void setupHTTPSCertificate(String hostname) throws CertificateException,
+    public void setupHTTPSCertificate() throws CertificateException,
             OperatorCreationException, KeyStoreException, NoSuchAlgorithmException,
             FileNotFoundException, IOException, UnrecoverableKeyException {
         // Get the existing private/public keypair to use for the HTTPS cert
         KeyPair kerplappKeypair = getKerplappKeypair();
 
-        // Once we have a hostname we can generate a self signed cert with a
-        // valid CN field to stash into the keystore in a predictable place.
-        // If the hostname changes we should run this method again to stomp
-        // old HTTPS_CERT_ALIAS entries.
-        X500Name subject = new X500Name("CN=" + hostname);
+        /*
+         * Once we have an IP address, that can be used as the hostname. We can
+         * generate a self signed cert with a valid CN field to stash into the
+         * keystore in a predictable place. If the IP address changes we should
+         * run this method again to stomp old HTTPS_CERT_ALIAS entries.
+         */
+        X500Name subject = new X500Name("CN=" + KerplappApplication.ipAddressString);
 
-        Certificate indexCert = generateSelfSignedCertChain(kerplappKeypair, subject, hostname);
+        Certificate indexCert = generateSelfSignedCertChain(kerplappKeypair, subject,
+                KerplappApplication.ipAddressString);
 
         addToStore(HTTP_CERT_ALIAS, kerplappKeypair, indexCert);
     }
@@ -185,10 +189,12 @@ public class KerplappKeyStore {
 
     private KeyPair getKerplappKeypair() throws KeyStoreException, UnrecoverableKeyException,
             NoSuchAlgorithmException {
-        // You can't store a keypair without an associated certificate chain so,
-        // we'll use the INDEX_CERT_ALIAS as the de-facto keypair/certificate
-        // chain. This cert/key is initialized when the KerplappKeyStore is
-        // constructed for the first time and should *always* be present.
+        /*
+         * You can't store a keypair without an associated certificate chain so,
+         * we'll use the INDEX_CERT_ALIAS as the de-facto keypair/certificate
+         * chain. This cert/key is initialized when the KerplappKeyStore is
+         * constructed for the first time and should *always* be present.
+         */
         Key key = keyStore.getKey(INDEX_CERT_ALIAS, "".toCharArray());
 
         if (key instanceof PrivateKey) {
@@ -329,7 +335,7 @@ public class KerplappKeyStore {
             /*
              * Always use the HTTP_CERT_ALIAS for the server alias.
              */
-            return KerplappKeyStore.HTTP_CERT_ALIAS;
+            return LocalRepoKeyStore.HTTP_CERT_ALIAS;
         }
 
         @Override

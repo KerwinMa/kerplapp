@@ -18,8 +18,6 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import net.binaryparadox.kerplapp.KerplappActivity;
-import net.binaryparadox.kerplapp.KerplappApplication;
-import net.binaryparadox.kerplapp.KerplappKeyStore;
 import net.binaryparadox.kerplapp.R;
 import net.binaryparadox.kerplapp.network.KerplappHTTPD;
 
@@ -97,16 +95,9 @@ public class LocalRepoService extends Service {
             @Override
             public void run() {
                 Log.i(TAG, "run");
-                final KerplappHTTPD kerplappHttpd = new KerplappHTTPD(
-                        KerplappApplication.ipAddressString,
-                        KerplappApplication.port, getFilesDir(), false);
-
+                final KerplappHTTPD kerplappHttpd = new KerplappHTTPD(getFilesDir(), true);
                 if (useHttps)
-                {
-                    KerplappApplication appCtx = (KerplappApplication) getApplication();
-                    KerplappKeyStore keyStore = appCtx.getKeyStore();
-                    kerplappHttpd.enableHTTPS(keyStore);
-                }
+                    kerplappHttpd.enableHTTPS();
 
                 Looper.prepare(); // must be run before creating a Handler
                 handler = new Handler() {

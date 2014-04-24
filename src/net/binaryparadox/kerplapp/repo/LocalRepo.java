@@ -23,7 +23,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import net.binaryparadox.kerplapp.KerplappApplication;
-import net.binaryparadox.kerplapp.KerplappKeyStore;
 import net.binaryparadox.kerplapp.SettingsActivity;
 
 import org.fdroid.fdroid.Utils;
@@ -75,7 +74,6 @@ public class LocalRepo {
     private static final String DEFAULT_REPO_MAX_AGE_DAYS = "14";
 
     private final PackageManager pm;
-    private final KerplappApplication appCtx;
     private final AssetManager assetManager;
     private final SharedPreferences prefs;
 
@@ -95,21 +93,8 @@ public class LocalRepo {
     public LocalRepo(Context c) {
         webRoot = c.getFilesDir();
         pm = c.getPackageManager();
-        appCtx = (KerplappApplication) c.getApplicationContext();
         assetManager = c.getAssets();
         prefs = PreferenceManager.getDefaultSharedPreferences(c);
-    }
-
-    public File getRepoDir() {
-        return repoDir;
-    }
-
-    public File getIndex() {
-        return xmlIndex;
-    }
-
-    public void setIpAddressString(String ipAddressString) {
-        this.ipAddressString = ipAddressString;
     }
 
     public void setUriString(String uriString) {
@@ -320,7 +305,7 @@ public class LocalRepo {
     }
 
     @TargetApi(9)
-    public App addApp(String packageName) {
+    public App addApp(Context context, String packageName) {
         ApplicationInfo appInfo;
         PackageInfo packageInfo;
         try {
@@ -356,7 +341,7 @@ public class LocalRepo {
         apk.hashType = "sha256";
         apk.hash = Utils.getBinaryHash(apkFile, apk.hashType);
         apk.added = app.added;
-        apk.minSdkVersion = getMinSdkVersion(appCtx, packageName);
+        apk.minSdkVersion = getMinSdkVersion(context, packageName);
         apk.id = app.id;
         apk.installedFile = apkFile;
         if (packageInfo.requestedPermissions == null)
@@ -733,8 +718,7 @@ public class LocalRepo {
         jo.close();
         bo.close();
 
-        KerplappKeyStore kerplappStore = appCtx.getKeyStore();
-        kerplappStore.signZip(xmlIndexJarUnsigned, xmlIndexJar);
+        KerplappApplication.localRepoKeyStore.signZip(xmlIndexJarUnsigned, xmlIndexJar);
 
         xmlIndexJarUnsigned.delete();
     }

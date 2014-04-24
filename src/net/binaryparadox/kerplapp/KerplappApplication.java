@@ -26,10 +26,9 @@ public class KerplappApplication extends Application {
     public static int ipAddress = 0;
     public static int port = 8888;
     public static String ipAddressString = null;
+    public static LocalRepo localRepo = null;
+    public static LocalRepoKeyStore localRepoKeyStore = null;
     static Set<String> selectedApps = new HashSet<String>();
-
-    private LocalRepo localRepo = null;
-    private KerplappKeyStore keystore = null;
 
     @Override
     public void onCreate() {
@@ -51,9 +50,9 @@ public class KerplappApplication extends Application {
             }
         }
 
-        if (keystore == null) {
+        if (localRepoKeyStore == null) {
             try {
-                keystore = new KerplappKeyStore(keyStoreFile);
+                localRepoKeyStore = new LocalRepoKeyStore(keyStoreFile);
             } catch (UnrecoverableKeyException e) {
                 e.printStackTrace();
             } catch (KeyStoreException e) {
@@ -68,13 +67,5 @@ public class KerplappApplication extends Application {
                 e.printStackTrace();
             }
         }
-    }
-
-    public LocalRepo getLocalRepo() {
-        return localRepo;
-    }
-
-    public KerplappKeyStore getKeyStore() {
-        return keystore;
     }
 }

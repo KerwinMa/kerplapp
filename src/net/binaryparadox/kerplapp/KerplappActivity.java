@@ -34,7 +34,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import net.binaryparadox.kerplapp.repo.LocalRepo;
 import net.binaryparadox.kerplapp.repo.LocalRepoService;
 
 import org.fdroid.fdroid.Utils;
@@ -195,12 +194,8 @@ public class KerplappActivity extends Activity {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         final boolean useHttps = prefs.getBoolean("use_https", false);
 
-        final KerplappApplication appCtx = (KerplappApplication) getApplication();
-        final LocalRepo kerplappRepo = appCtx.getLocalRepo();
-
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         String ssid = wifiInfo.getSSID().replaceAll("^\"(.*)\"$", "$1");
-        KerplappKeyStore keyStore = appCtx.getKeyStore();
 
         KerplappApplication.ipAddress = wifiInfo.getIpAddress();
         KerplappApplication.ipAddressString = String.format(Locale.ENGLISH, "%d.%d.%d.%d",
@@ -208,7 +203,6 @@ public class KerplappActivity extends Activity {
                 (KerplappApplication.ipAddress >> 8 & 0xff),
                 (KerplappApplication.ipAddress >> 16 & 0xff),
                 (KerplappApplication.ipAddress >> 24 & 0xff));
-        kerplappRepo.setIpAddressString(KerplappApplication.ipAddressString);
 
         String scheme;
         if (useHttps)
@@ -217,7 +211,7 @@ public class KerplappActivity extends Activity {
             scheme = "http";
         repo.address = String.format(Locale.ENGLISH, "%s://%s:%d/fdroid/repo",
                 scheme, KerplappApplication.ipAddressString, KerplappApplication.port);
-        repo.fingerprint = keyStore.getFingerprint();
+        repo.fingerprint = KerplappApplication.localRepoKeyStore.getFingerprint();
 
         // the fingerprint is not useful on the button label
         String buttonLabel = repo.address.replaceAll("\\?.*$", "");
@@ -227,8 +221,8 @@ public class KerplappActivity extends Activity {
         ImageView repoQrCodeImageView = (ImageView) findViewById(R.id.repoQrCode);
         // fdroidrepo:// and fdroidrepos:// ensures it goes directly to F-Droid
         String fdroidrepoUriString = getSharingUri().toString();
-        kerplappRepo.setUriString(repo.address);
-        kerplappRepo.writeIndexPage(fdroidrepoUriString);
+        KerplappApplication.localRepo.setUriString(repo.address);
+        KerplappApplication.localRepo.writeIndexPage(fdroidrepoUriString);
         /*
          * Set URL to UPPER for compact QR Code, FDroid will translate it back.
          * Remove the SSID from the query string since SSIDs are case-sensitive.
@@ -260,7 +254,7 @@ public class KerplappActivity extends Activity {
         // ipAddressString. We'll generate it even if useHttps is false
         // to simplify having to detect when that preference changes.
         try {
-            keyStore.setupHTTPSCertificate(KerplappApplication.ipAddressString);
+            KerplappApplication.localRepoKeyStore.setupHTTPSCertificate();
         } catch (UnrecoverableKeyException e) {
             e.printStackTrace();
         } catch (CertificateException e) {
@@ -365,27 +359,26 @@ public class KerplappActivity extends Activity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            final LocalRepo repo = ((KerplappApplication) getApplication()).getLocalRepo();
             try {
                 publishProgress(getString(R.string.deleting_repo));
-                repo.deleteRepo();
+                KerplappApplication.localRepo.deleteRepo();
                 for (String app : selectedApps) {
                     publishProgress(String.format(getString(R.string.adding_apks_format), app));
-                    repo.addApp(app);
+                    KerplappApplication.localRepo.addApp(getApplicationContext(), app);
                 }
                 publishProgress(getString(R.string.writing_index_xml));
-                repo.writeIndexXML();
+                KerplappApplication.localRepo.writeIndexXML();
                 publishProgress(getString(R.string.writing_index_jar));
-                repo.writeIndexJar();
+                KerplappApplication.localRepo.writeIndexJar();
                 publishProgress(getString(R.string.linking_apks));
-                repo.copyApksToRepo();
+                KerplappApplication.localRepo.copyApksToRepo();
                 publishProgress(getString(R.string.copying_icons));
                 // run the icon copy without progress, its not a blocker
                 new AsyncTask<Void, Void, Void>() {
 
                     @Override
                     protected Void doInBackground(Void... params) {
-                        repo.copyIconsToRepo();
+                        KerplappApplication.localRepo.copyIconsToRepo();
                         return null;
                     }
                 }.execute();
