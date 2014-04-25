@@ -49,6 +49,13 @@
         <activity android:name=".QrWizardDownloadActivity" />
         <activity android:name=".QrWizardWifiNetworkActivity" />
 
+        <receiver android:name="org.fdroid.fdroid.WifiStateChangeReceiver" >
+            <intent-filter>
+                <action android:name="android.net.wifi.STATE_CHANGE" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".network.WifiStateChangeService" />
         <service android:name=".repo.LocalRepoService" />
     </application>
 

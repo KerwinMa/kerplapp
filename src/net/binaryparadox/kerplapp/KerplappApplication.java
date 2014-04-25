@@ -11,6 +11,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 
+import net.binaryparadox.kerplapp.network.WifiStateChangeService;
 import net.binaryparadox.kerplapp.repo.LocalRepo;
 import net.binaryparadox.kerplapp.repo.LocalRepoService;
 
@@ -85,6 +86,8 @@ public class KerplappApplication extends Application {
                 e.printStackTrace();
             }
         }
+        // initialized the local repo information
+        startService(new Intent(this, WifiStateChangeService.class));
     }
 
     private static ServiceConnection serviceConnection = new ServiceConnection() {

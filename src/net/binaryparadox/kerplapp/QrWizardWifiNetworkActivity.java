@@ -2,17 +2,23 @@
 package net.binaryparadox.kerplapp;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import net.binaryparadox.kerplapp.network.WifiStateChangeService;
 
 import org.fdroid.fdroid.Utils;
 
@@ -43,6 +49,26 @@ public class QrWizardWifiNetworkActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
+        resetNetworkInfo();
+        LocalBroadcastManager.getInstance(this).registerReceiver(onWifiChange,
+                new IntentFilter(WifiStateChangeService.BROADCAST));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onWifiChange);
+    }
+
+    private BroadcastReceiver onWifiChange = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent i) {
+            Log.i(TAG, "onWifiChange.onReceive()");
+            resetNetworkInfo();
+        }
+    };
+
+    private void resetNetworkInfo() {
         int wifiState = wifiManager.getWifiState();
         if (wifiState == WifiManager.WIFI_STATE_ENABLED) {
             WifiInfo wifiInfo = wifiManager.getConnectionInfo();

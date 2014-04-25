@@ -2,16 +2,23 @@
 package net.binaryparadox.kerplapp;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import net.binaryparadox.kerplapp.network.WifiStateChangeService;
 
 import org.fdroid.fdroid.Utils;
 
@@ -38,7 +45,26 @@ public class QrWizardDownloadActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
+        resetNetworkInfo();
+        LocalBroadcastManager.getInstance(this).registerReceiver(onWifiChange,
+                new IntentFilter(WifiStateChangeService.BROADCAST));
+    }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onWifiChange);
+    }
+
+    private BroadcastReceiver onWifiChange = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent i) {
+            Log.i(TAG, "onWifiChange.onReceive()");
+            resetNetworkInfo();
+        }
+    };
+
+    private void resetNetworkInfo() {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String qrString = "";
         if (prefs.getBoolean("use_https", false))

@@ -5,13 +5,12 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.ComponentName;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -19,7 +18,8 @@ import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +29,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
+import net.binaryparadox.kerplapp.network.WifiStateChangeService;
 
 import org.fdroid.fdroid.Utils;
 import org.spongycastle.operator.OperatorCreationException;
@@ -64,12 +66,28 @@ public class KerplappActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
+        resetNetworkInfo();
+        LocalBroadcastManager.getInstance(this).registerReceiver(onWifiChange,
+                new IntentFilter(WifiStateChangeService.BROADCAST));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onWifiChange);
+    }
+
+    private BroadcastReceiver onWifiChange = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent i) {
+            resetNetworkInfo();
+        }
+    };
+
+    private void resetNetworkInfo() {
         int wifiState = wifiManager.getWifiState();
         if (wifiState == WifiManager.WIFI_STATE_ENABLED) {
-            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-            if (KerplappApplication.ipAddress != wifiInfo.getIpAddress()) {
-                setIpAddressFromWifi();
-            }
+            setUIFromWifi();
             wireRepoSwitchToWebServer();
         } else {
             repoSwitch.setText(R.string.enable_wifi);
@@ -78,7 +96,13 @@ public class KerplappActivity extends Activity {
             repoSwitch.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    enableWifi();
+                    wifiManager.setWifiEnabled(true);
+                    /*
+                     * Once the wifi is connected to a network, then
+                     * WifiStateChangeReceiver will receive notice, and kick off
+                     * the process of getting the info about the wifi
+                     * connection.
+                     */
                 }
             });
         }
@@ -116,9 +140,9 @@ public class KerplappActivity extends Activity {
         if (resultCode != Activity.RESULT_OK)
             return;
         if (requestCode == SET_IP_ADDRESS) {
-            setIpAddressFromWifi();
+            setUIFromWifi();
         } else if (requestCode == UPDATE_REPO) {
-            setIpAddressFromWifi();
+            setUIFromWifi();
             new UpdateAsyncTask(this, KerplappApplication.selectedApps.toArray(new String[0]))
                     .execute();
         }
@@ -141,11 +165,6 @@ public class KerplappActivity extends Activity {
         }
     }
 
-    private void enableWifi() {
-        wifiManager.setWifiEnabled(true);
-        new WaitForWifiAsyncTask().execute();
-    }
-
     private void wireRepoSwitchToWebServer() {
         repoSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,39 +179,15 @@ public class KerplappActivity extends Activity {
     }
 
     @TargetApi(14)
-    private void setIpAddressFromWifi() {
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        final boolean useHttps = prefs.getBoolean("use_https", false);
-
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        String ssid = wifiInfo.getSSID().replaceAll("^\"(.*)\"$", "$1");
-
-        KerplappApplication.ipAddress = wifiInfo.getIpAddress();
-        KerplappApplication.ipAddressString = String.format(Locale.ENGLISH, "%d.%d.%d.%d",
-                (KerplappApplication.ipAddress & 0xff),
-                (KerplappApplication.ipAddress >> 8 & 0xff),
-                (KerplappApplication.ipAddress >> 16 & 0xff),
-                (KerplappApplication.ipAddress >> 24 & 0xff));
-
-        String scheme;
-        if (useHttps)
-            scheme = "https";
-        else
-            scheme = "http";
-        KerplappApplication.repo.address = String.format(Locale.ENGLISH, "%s://%s:%d/fdroid/repo",
-                scheme, KerplappApplication.ipAddressString, KerplappApplication.port);
-        KerplappApplication.repo.fingerprint = KerplappApplication.localRepoKeyStore.getFingerprint();
-
+    private void setUIFromWifi() {
+        if (TextUtils.isEmpty(KerplappApplication.repo.address))
+            return;
         // the fingerprint is not useful on the button label
         String buttonLabel = KerplappApplication.repo.address.replaceAll("\\?.*$", "");
         repoSwitch.setText(buttonLabel);
         repoSwitch.setTextOn(buttonLabel);
         repoSwitch.setTextOff(buttonLabel);
-        String fdroidrepoUriString = Utils.getSharingUri(this).toString();
         ImageView repoQrCodeImageView = (ImageView) findViewById(R.id.repoQrCode);
-        // fdroidrepo:// and fdroidrepos:// ensures it goes directly to F-Droid
-        KerplappApplication.localRepo.setUriString(KerplappApplication.repo.address);
-        KerplappApplication.localRepo.writeIndexPage(fdroidrepoUriString);
         /*
          * Set URL to UPPER for compact QR Code, FDroid will translate it back.
          * Remove the SSID from the query string since SSIDs are case-sensitive.
@@ -200,7 +195,7 @@ public class KerplappActivity extends Activity {
          * wifi AP to join. Lots of QR Scanners are buggy and do not respect
          * custom URI schemes, so we have to use http:// or https:// :-(
          */
-        String qrUriString = fdroidrepoUriString
+        final String qrUriString = Utils.getSharingUri(this).toString()
                 .replaceFirst("fdroidrepo", "http")
                 .replaceAll("ssid=[^?]*", "")
                 .toUpperCase(Locale.ENGLISH);
@@ -249,42 +244,6 @@ public class KerplappActivity extends Activity {
             nfcAdapter.setNdefPushMessage(new NdefMessage(new NdefRecord[] {
                     NdefRecord.createUri(Utils.getSharingUri(this)),
             }), this);
-        }
-    }
-
-    public class WaitForWifiAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                while (!wifiManager.isWifiEnabled()) {
-                    Log.i(TAG, "waiting for the wifi to be enabled...");
-                    Thread.sleep(3000);
-                    Log.i(TAG, "ever recover from sleep?");
-                }
-                Log.i(TAG, "0");
-                KerplappApplication.ipAddress = wifiManager.getConnectionInfo().getIpAddress();
-                Log.i(TAG, "1");
-                while (KerplappApplication.ipAddress == 0) {
-                    Log.i(TAG, "waiting for an IP address...");
-                    Thread.sleep(3000);
-                    KerplappApplication.ipAddress = wifiManager.getConnectionInfo().getIpAddress();
-                }
-                Log.i(TAG, "2");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            Log.i(TAG, "onPostExecute " + KerplappApplication.ipAddress);
-            repoSwitch.setChecked(false);
-            if (wifiManager.isWifiEnabled() && KerplappApplication.ipAddress != 0) {
-                setIpAddressFromWifi();
-                wireRepoSwitchToWebServer();
-            }
         }
     }
 
