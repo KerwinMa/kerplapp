@@ -8,11 +8,11 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Messenger;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -31,14 +31,27 @@ public class LocalRepoService extends Service {
     // We use it on Notification start, and to cancel it.
     private int NOTIFICATION = R.string.local_repo_running;
 
-    private Thread webServerThread = null;
-    private Handler handler = null;
+    private Handler webServerThreadHandler = null;
 
-    public class LocalRepoBinder extends Binder {
-        public LocalRepoService getService() {
-            return LocalRepoService.this;
+    public static int START = 1111111;
+    public static int STOP = 12345678;
+    public static int RESTART = 87654;
+
+    final Messenger messenger = new Messenger(new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.arg1 == START) {
+                startWebServer();
+            } else if (msg.arg1 == STOP) {
+                stopWebServer();
+            } else if (msg.arg1 == RESTART) {
+                stopWebServer();
+                startWebServer();
+            } else {
+                Log.i(TAG, "unsupported msg.arg1, ignored");
+            }
         }
-    }
+    });
 
     @Override
     public void onCreate() {
@@ -62,12 +75,8 @@ public class LocalRepoService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return mBinder;
+        return messenger.getBinder();
     }
-
-    // This is the object that receives interactions from clients. See
-    // RemoteService for a more complete example.
-    private final IBinder mBinder = new LocalRepoBinder();
 
     /**
      * Show a notification while this service is running.
@@ -87,23 +96,20 @@ public class LocalRepoService extends Service {
 
     private void startWebServer() {
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        final boolean useHttps = prefs.getBoolean("use_https", false);
 
         Runnable webServer = new Runnable() {
             // Tell Eclipse this is not a leak because of Looper use.
             @SuppressLint("HandlerLeak")
             @Override
             public void run() {
-                Log.i(TAG, "run");
                 final KerplappHTTPD kerplappHttpd = new KerplappHTTPD(getFilesDir(), true);
-                if (useHttps)
+                if (prefs.getBoolean("use_https", false))
                     kerplappHttpd.enableHTTPS();
 
                 Looper.prepare(); // must be run before creating a Handler
-                handler = new Handler() {
+                webServerThreadHandler = new Handler() {
                     @Override
                     public void handleMessage(Message msg) {
-                        // the only message this Thread responds to is STOP!
                         Log.i(TAG, "we've been asked to stop the webserver: " + msg.obj);
                         kerplappHttpd.stop();
                     }
@@ -116,17 +122,16 @@ public class LocalRepoService extends Service {
                 Looper.loop(); // start the message receiving loop
             }
         };
-        webServerThread = new Thread(webServer);
-        webServerThread.start();
+        new Thread(webServer).start();
     }
 
     private void stopWebServer() {
-        if (handler == null) {
+        if (webServerThreadHandler == null) {
             Log.i(TAG, "null handler in stopWebServer");
             return;
         }
-        Message msg = handler.obtainMessage();
-        msg.obj = handler.getLooper().getThread().getName() + " says stop";
-        handler.sendMessage(msg);
+        Message msg = webServerThreadHandler.obtainMessage();
+        msg.obj = webServerThreadHandler.getLooper().getThread().getName() + " says stop";
+        webServerThreadHandler.sendMessage(msg);
     }
 }

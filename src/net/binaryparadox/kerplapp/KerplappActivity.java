@@ -22,6 +22,9 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -56,6 +59,9 @@ public class KerplappActivity extends Activity {
     private ToggleButton repoSwitch;
     private Repo repo = new Repo();
 
+    private boolean localRepoServiceIsBound = false;
+    private Messenger localRepoServiceMessenger = null;
+
     private int SET_IP_ADDRESS = 7345;
     private int UPDATE_REPO = 7346;
     private int SEND_TEST_REPO = 7347;
@@ -78,12 +84,16 @@ public class KerplappActivity extends Activity {
             WifiInfo wifiInfo = wifiManager.getConnectionInfo();
             if (KerplappApplication.ipAddress != wifiInfo.getIpAddress()) {
                 setIpAddressFromWifi();
-                if (repoSwitch.isChecked()) {
-                    // TODO why? stopWebServer();
-                    // TODO why? startWebServer();
+                if (repoSwitch.isChecked() && localRepoServiceMessenger != null) {
+                    try {
+                        Message msg = Message.obtain(null,
+                                LocalRepoService.RESTART, LocalRepoService.RESTART, 0);
+                        localRepoServiceMessenger.send(msg);
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-
             wireRepoSwitchToWebServer();
         } else {
             repoSwitch.setText(R.string.enable_wifi);
@@ -402,8 +412,6 @@ public class KerplappActivity extends Activity {
         }
     }
 
-    private LocalRepoService mBoundService;
-
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -412,21 +420,14 @@ public class KerplappActivity extends Activity {
             // interact with the service. Because we have bound to a explicit
             // service that we know is running in our own process, we can
             // cast its IBinder to a concrete class and directly access it.
-            mBoundService = ((LocalRepoService.LocalRepoBinder) service).getService();
-
-            // Tell the user about this for our demo.
-
+            localRepoServiceMessenger = new Messenger(service);
             Toast.makeText(getBaseContext(), "local repo service connected",
                     Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName className) {
-            // This is called when the connection with the service has been
-            // unexpectedly disconnected -- that is, its process crashed.
-            // Because it is running in our same process, we should never
-            // see this happen.
-            mBoundService = null;
+            localRepoServiceMessenger = null;
             Toast.makeText(getBaseContext(), "local repo service disconnected",
                     Toast.LENGTH_SHORT).show();
         }
@@ -439,12 +440,14 @@ public class KerplappActivity extends Activity {
         // supporting component replacement by other applications).
         bindService(new Intent(this, LocalRepoService.class),
                 serviceConnection, Context.BIND_AUTO_CREATE);
+        localRepoServiceIsBound = true;
     }
 
     void unbindService() {
-        if (mBoundService != null) {
+        if (localRepoServiceIsBound) {
             // Detach our existing connection.
             unbindService(serviceConnection);
+            localRepoServiceIsBound = false;
         }
     }
 }
