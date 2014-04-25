@@ -1,5 +1,5 @@
 
-package net.binaryparadox.kerplapp.repo;
+package org.fdroid.fdroid.localrepo;
 
 import android.annotation.TargetApi;
 import android.content.Context;

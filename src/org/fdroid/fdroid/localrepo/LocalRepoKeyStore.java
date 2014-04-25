@@ -1,5 +1,5 @@
 
-package net.binaryparadox.kerplapp.repo;
+package org.fdroid.fdroid.localrepo;
 
 import net.binaryparadox.kerplapp.FDroidApp;
 

@@ -13,11 +13,11 @@ import android.os.Messenger;
 import android.os.RemoteException;
 
 import net.binaryparadox.kerplapp.network.WifiStateChangeService;
-import net.binaryparadox.kerplapp.repo.LocalRepo;
-import net.binaryparadox.kerplapp.repo.LocalRepoKeyStore;
-import net.binaryparadox.kerplapp.repo.LocalRepoService;
 
 import org.fdroid.fdroid.data.Repo;
+import org.fdroid.fdroid.localrepo.LocalRepo;
+import org.fdroid.fdroid.localrepo.LocalRepoKeyStore;
+import org.fdroid.fdroid.localrepo.LocalRepoService;
 import org.spongycastle.operator.OperatorCreationException;
 
 import java.io.File;

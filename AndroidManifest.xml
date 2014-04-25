@@ -56,7 +56,7 @@
         </receiver>
 
         <service android:name=".network.WifiStateChangeService" />
-        <service android:name=".repo.LocalRepoService" />
+        <service android:name="org.fdroid.fdroid.localrepo.LocalRepoService" />
     </application>
 
 </manifest>
