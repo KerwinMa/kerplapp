@@ -2,13 +2,17 @@
 package net.binaryparadox.kerplapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.PreferenceActivity;
 import android.text.TextUtils;
+
+import net.binaryparadox.kerplapp.network.WifiStateChangeService;
 
 @SuppressWarnings("deprecation") //See Task #2955
 public class SettingsActivity extends PreferenceActivity
@@ -25,7 +29,7 @@ public class SettingsActivity extends PreferenceActivity
         super.onResume();
         SharedPreferences prefs = getPreferenceScreen().getSharedPreferences();
         prefs.registerOnSharedPreferenceChangeListener(this);
-        EditTextPreference pref = (EditTextPreference)findPreference("repo_name");
+        EditTextPreference pref = (EditTextPreference) findPreference("repo_name");
         String current = pref.getText();
         if (TextUtils.isEmpty(current)) {
             String defaultValue = getDefaultRepoName();
@@ -45,13 +49,19 @@ public class SettingsActivity extends PreferenceActivity
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
         if (key.equals("use_https")) {
             setResult(Activity.RESULT_OK);
+            WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+            int wifiState = wifiManager.getWifiState();
+            if (wifiState == WifiManager.WIFI_STATE_ENABLING
+                    || wifiState == WifiManager.WIFI_STATE_ENABLED) {
+                startService(new Intent(this, WifiStateChangeService.class));
+            }
         } else if (key.equals("repo_name")) {
             setSummaries();
         }
     }
 
     private void setSummaries() {
-        EditTextPreference pref = (EditTextPreference)findPreference("repo_name");
+        EditTextPreference pref = (EditTextPreference) findPreference("repo_name");
         String current = pref.getText();
         if (current.equals(getDefaultRepoName()))
             pref.setSummary(R.string.local_repo_name_summary);

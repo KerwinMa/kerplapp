@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -87,7 +88,11 @@ public class KerplappApplication extends Application {
             }
         }
         // initialized the local repo information
-        startService(new Intent(this, WifiStateChangeService.class));
+        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+        int wifiState = wifiManager.getWifiState();
+        if (wifiState == WifiManager.WIFI_STATE_ENABLING
+                || wifiState == WifiManager.WIFI_STATE_ENABLED)
+            startService(new Intent(this, WifiStateChangeService.class));
     }
 
     private static ServiceConnection serviceConnection = new ServiceConnection() {
