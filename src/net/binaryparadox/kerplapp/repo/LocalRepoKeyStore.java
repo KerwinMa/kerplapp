@@ -1,5 +1,7 @@
 
-package net.binaryparadox.kerplapp;
+package net.binaryparadox.kerplapp.repo;
+
+import net.binaryparadox.kerplapp.KerplappApplication;
 
 import org.spongycastle.asn1.ASN1Sequence;
 import org.spongycastle.asn1.x500.X500Name;

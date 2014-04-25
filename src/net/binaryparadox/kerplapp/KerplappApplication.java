@@ -14,6 +14,7 @@ import android.os.RemoteException;
 
 import net.binaryparadox.kerplapp.network.WifiStateChangeService;
 import net.binaryparadox.kerplapp.repo.LocalRepo;
+import net.binaryparadox.kerplapp.repo.LocalRepoKeyStore;
 import net.binaryparadox.kerplapp.repo.LocalRepoService;
 
 import org.fdroid.fdroid.data.Repo;
