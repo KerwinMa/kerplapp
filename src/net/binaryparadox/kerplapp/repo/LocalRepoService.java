@@ -21,7 +21,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import net.binaryparadox.kerplapp.KerplappActivity;
+import net.binaryparadox.kerplapp.LocalRepoActivity;
 import net.binaryparadox.kerplapp.R;
 import net.binaryparadox.kerplapp.network.KerplappHTTPD;
 import net.binaryparadox.kerplapp.network.WifiStateChangeService;
@@ -70,7 +70,7 @@ public class LocalRepoService extends Service {
     public void onCreate() {
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         // launch KerplappActivity if the user selects this notification
-        Intent intent = new Intent(this, KerplappActivity.class);
+        Intent intent = new Intent(this, LocalRepoActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
         Notification notification = new NotificationCompat.Builder(this)

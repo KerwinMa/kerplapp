@@ -41,8 +41,8 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
 
-public class KerplappActivity extends Activity {
-    private static final String TAG = "KerplappActivity";
+public class LocalRepoActivity extends Activity {
+    private static final String TAG = "LocalRepoActivity";
     private ProgressDialog repoProgress;
 
     private WifiManager wifiManager;
