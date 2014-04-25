@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -15,12 +14,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.binaryparadox.kerplapp.network.WifiStateChangeService;
-
-import org.fdroid.fdroid.Utils;
 
 public class QrWizardWifiNetworkActivity extends Activity {
     private static final String TAG = "QrWizardWifiNetworkActivity";
@@ -93,9 +89,7 @@ public class QrWizardWifiNetworkActivity extends Activity {
             if (wifiInfo.getHiddenSSID())
                 qrString += ";H:true";
             qrString += ";;";
-            Bitmap qrBitmap = Utils.generateQrCode(this, qrString);
-            ImageView repoQrCodeImageView = (ImageView) findViewById(R.id.qrWizardImage);
-            repoQrCodeImageView.setImageBitmap(qrBitmap);
+            new QrGenAsyncTask(this, R.id.qrWizardImage).execute(qrString);
             Log.i(TAG, "qr: " + qrString);
 
             TextView wifiNetworkName = (TextView) findViewById(R.id.qrWifiNetworkName);

@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.net.wifi.WifiManager;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -25,7 +24,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -183,7 +181,6 @@ public class KerplappActivity extends Activity {
         repoSwitch.setText(buttonLabel);
         repoSwitch.setTextOn(buttonLabel);
         repoSwitch.setTextOff(buttonLabel);
-        ImageView repoQrCodeImageView = (ImageView) findViewById(R.id.repoQrCode);
         /*
          * Set URL to UPPER for compact QR Code, FDroid will translate it back.
          * Remove the SSID from the query string since SSIDs are case-sensitive.
@@ -196,8 +193,7 @@ public class KerplappActivity extends Activity {
                 .replaceAll("ssid=[^?]*", "")
                 .toUpperCase(Locale.ENGLISH);
         Log.i("QRURI", qrUriString);
-        Bitmap qrBitmap = Utils.generateQrCode(this, qrUriString);
-        repoQrCodeImageView.setImageBitmap(qrBitmap);
+        new QrGenAsyncTask(this, R.id.repoQrCode).execute(qrUriString);
 
         TextView wifiNetworkNameTextView = (TextView) findViewById(R.id.wifiNetworkName);
         wifiNetworkNameTextView.setText(KerplappApplication.ssid);
