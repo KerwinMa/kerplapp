@@ -88,6 +88,7 @@ public class KerplappActivity extends Activity {
             setUIFromWifi();
             wireRepoSwitchToWebServer();
         } else {
+            repoSwitch.setChecked(false);
             repoSwitch.setText(R.string.enable_wifi);
             repoSwitch.setTextOn(getString(R.string.enabling_wifi));
             repoSwitch.setTextOff(getString(R.string.enable_wifi));
