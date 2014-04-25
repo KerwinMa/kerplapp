@@ -12,7 +12,6 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.nfc.NdefMessage;
@@ -26,7 +25,6 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -135,7 +133,7 @@ public class KerplappActivity extends Activity {
                 } else {
                     // TODO check if F-Droid is actually installed instead of
                     // just crashing
-                    Intent intent = new Intent(Intent.ACTION_VIEW, getSharingUri());
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Utils.getSharingUri(this, repo));
                     intent.setClassName("org.fdroid.fdroid", "org.fdroid.fdroid.ManageRepo");
                     startActivityForResult(intent, SEND_TEST_REPO);
                 }
@@ -230,7 +228,7 @@ public class KerplappActivity extends Activity {
         repoSwitch.setTextOff(buttonLabel);
         ImageView repoQrCodeImageView = (ImageView) findViewById(R.id.repoQrCode);
         // fdroidrepo:// and fdroidrepos:// ensures it goes directly to F-Droid
-        String fdroidrepoUriString = getSharingUri().toString();
+        String fdroidrepoUriString = Utils.getSharingUri(this, repo).toString();
         KerplappApplication.localRepo.setUriString(repo.address);
         KerplappApplication.localRepo.writeIndexPage(fdroidrepoUriString);
         /*
@@ -287,7 +285,7 @@ public class KerplappActivity extends Activity {
             if (nfcAdapter == null)
                 return;
             nfcAdapter.setNdefPushMessage(new NdefMessage(new NdefRecord[] {
-                    NdefRecord.createUri(getSharingUri()),
+                    NdefRecord.createUri(Utils.getSharingUri(this, repo)),
             }), this);
         }
     }
@@ -332,22 +330,6 @@ public class KerplappActivity extends Activity {
     public void onConfigurationChanged(Configuration newConfig) {
         // ignore orientation/keyboard change
         super.onConfigurationChanged(newConfig);
-    }
-
-    // this is from F-Droid RepoDetailsActivity
-    protected Uri getSharingUri() {
-        Uri uri = Uri.parse(repo.address.replaceFirst("http", "fdroidrepo"));
-        Uri.Builder b = uri.buildUpon();
-        b.appendQueryParameter("fingerprint", repo.fingerprint);
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        String ssid = wifiInfo.getSSID().replaceAll("^\"(.*)\"$", "$1");
-        String bssid = wifiInfo.getBSSID();
-        if (!TextUtils.isEmpty(bssid)) {
-            b.appendQueryParameter("bssid", Uri.encode(bssid));
-            if (!TextUtils.isEmpty(ssid))
-                b.appendQueryParameter("ssid", Uri.encode(ssid));
-        }
-        return b.build();
     }
 
     class UpdateAsyncTask extends AsyncTask<Void, String, Void> {
