@@ -69,7 +69,17 @@ public class LocalRepoService extends Service {
     @Override
     public void onCreate() {
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        showNotification();
+        // launch KerplappActivity if the user selects this notification
+        Intent intent = new Intent(this, KerplappActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        Notification notification = new NotificationCompat.Builder(this)
+                .setContentTitle(getText(R.string.local_repo_running))
+                .setContentText(getText(R.string.touch_to_configure_local_repo))
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentIntent(contentIntent)
+                .build();
+        startForeground(0xaf73e973, notification);
         startWebServer();
         LocalBroadcastManager.getInstance(this).registerReceiver(onWifiChange,
                 new IntentFilter(WifiStateChangeService.BROADCAST));
@@ -92,22 +102,6 @@ public class LocalRepoService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return messenger.getBinder();
-    }
-
-    /**
-     * Show a notification while this service is running.
-     */
-    private void showNotification() {
-        // launch KerplappActivity if the user selects this notification
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, KerplappActivity.class), 0);
-        Notification notification = new NotificationCompat.Builder(this)
-                .setContentTitle(getText(R.string.local_repo_running))
-                .setContentText(getText(R.string.touch_to_configure_local_repo))
-                .setSmallIcon(android.R.drawable.ic_dialog_info)
-                .setContentIntent(contentIntent)
-                .build();
-        notificationManager.notify(NOTIFICATION, notification);
     }
 
     private void startWebServer() {
