@@ -63,10 +63,10 @@ public class AppListFragment extends ListFragment implements LoaderCallbacks<Lis
         AppEntry appEntry = (AppEntry) adapter.getItem(position);
         appEntry.setEnabled(!appEntry.isEnabled());
         if (appEntry.isEnabled()) {
-            KerplappApplication.selectedApps.add(appEntry.getPackageName());
+            FDroidApp.selectedApps.add(appEntry.getPackageName());
             v.setBackgroundColor(getResources().getColor(R.color.app_selected));
         } else {
-            KerplappApplication.selectedApps.remove(appEntry.getPackageName());
+            FDroidApp.selectedApps.remove(appEntry.getPackageName());
             v.setBackgroundColor(getResources().getColor(android.R.color.background_dark));
         }
     }
@@ -88,8 +88,8 @@ public class AppListFragment extends ListFragment implements LoaderCallbacks<Lis
         // have to click the highlighted row for it to be added to the Set
         // otherwise it is just visually selected and not logically selected.
         for (AppEntry e : data) {
-            if (e.isEnabled() && !KerplappApplication.selectedApps.contains(e))
-                KerplappApplication.selectedApps.add(e.getPackageName());
+            if (e.isEnabled() && !FDroidApp.selectedApps.contains(e))
+                FDroidApp.selectedApps.add(e.getPackageName());
         }
 
         // The list should now be shown

@@ -67,8 +67,8 @@ public class QrWizardDownloadActivity extends Activity {
             qrString += "https";
         else
             qrString += "http";
-        qrString += "://" + KerplappApplication.ipAddressString;
-        qrString += ":" + KerplappApplication.port;
+        qrString += "://" + FDroidApp.ipAddressString;
+        qrString += ":" + FDroidApp.port;
 
         new QrGenAsyncTask(this, R.id.qrWizardImage).execute(qrString);
         Log.i(TAG, "qr: " + qrString);

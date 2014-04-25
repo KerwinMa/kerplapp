@@ -1,7 +1,7 @@
 
 package net.binaryparadox.kerplapp.repo;
 
-import net.binaryparadox.kerplapp.KerplappApplication;
+import net.binaryparadox.kerplapp.FDroidApp;
 
 import org.spongycastle.asn1.ASN1Sequence;
 import org.spongycastle.asn1.x500.X500Name;
@@ -137,10 +137,10 @@ public class LocalRepoKeyStore {
          * keystore in a predictable place. If the IP address changes we should
          * run this method again to stomp old HTTPS_CERT_ALIAS entries.
          */
-        X500Name subject = new X500Name("CN=" + KerplappApplication.ipAddressString);
+        X500Name subject = new X500Name("CN=" + FDroidApp.ipAddressString);
 
         Certificate indexCert = generateSelfSignedCertChain(kerplappKeypair, subject,
-                KerplappApplication.ipAddressString);
+                FDroidApp.ipAddressString);
 
         addToStore(HTTP_CERT_ALIAS, kerplappKeypair, indexCert);
     }

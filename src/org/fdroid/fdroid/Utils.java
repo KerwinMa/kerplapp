@@ -6,7 +6,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-import net.binaryparadox.kerplapp.KerplappApplication;
+import net.binaryparadox.kerplapp.FDroidApp;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -87,13 +87,13 @@ public class Utils {
 
     public static Uri getSharingUri(Context context) {
         // fdroidrepo:// and fdroidrepos:// ensures it goes directly to F-Droid
-        Uri uri = Uri.parse(KerplappApplication.repo.address.replaceFirst("http", "fdroidrepo"));
+        Uri uri = Uri.parse(FDroidApp.repo.address.replaceFirst("http", "fdroidrepo"));
         Uri.Builder b = uri.buildUpon();
-        b.appendQueryParameter("fingerprint", KerplappApplication.repo.fingerprint);
-        if (!TextUtils.isEmpty(KerplappApplication.bssid)) {
-            b.appendQueryParameter("bssid", Uri.encode(KerplappApplication.bssid));
-            if (!TextUtils.isEmpty(KerplappApplication.ssid))
-                b.appendQueryParameter("ssid", Uri.encode(KerplappApplication.ssid));
+        b.appendQueryParameter("fingerprint", FDroidApp.repo.fingerprint);
+        if (!TextUtils.isEmpty(FDroidApp.bssid)) {
+            b.appendQueryParameter("bssid", Uri.encode(FDroidApp.bssid));
+            if (!TextUtils.isEmpty(FDroidApp.ssid))
+                b.appendQueryParameter("ssid", Uri.encode(FDroidApp.ssid));
         }
         return b.build();
     }

@@ -105,7 +105,7 @@ public class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
             }
 
             String apkName = packageInfo.packageName + "_" + packageInfo.versionCode +".apk";
-            File apkFile = new File(KerplappApplication.localRepo.repoDir, apkName);
+            File apkFile = new File(FDroidApp.localRepo.repoDir, apkName);
 
             if(apkFile.exists())
             	entry.setEnabled(true);

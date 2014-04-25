@@ -138,7 +138,7 @@ public class KerplappActivity extends Activity {
             setUIFromWifi();
         } else if (requestCode == UPDATE_REPO) {
             setUIFromWifi();
-            new UpdateAsyncTask(this, KerplappApplication.selectedApps.toArray(new String[0]))
+            new UpdateAsyncTask(this, FDroidApp.selectedApps.toArray(new String[0]))
                     .execute();
         }
     }
@@ -165,9 +165,9 @@ public class KerplappActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (repoSwitch.isChecked()) {
-                    KerplappApplication.startLocalRepoService();
+                    FDroidApp.startLocalRepoService();
                 } else {
-                    KerplappApplication.stopLocalRepoService();
+                    FDroidApp.stopLocalRepoService();
                 }
             }
         });
@@ -175,10 +175,10 @@ public class KerplappActivity extends Activity {
 
     @TargetApi(14)
     private void setUIFromWifi() {
-        if (TextUtils.isEmpty(KerplappApplication.repo.address))
+        if (TextUtils.isEmpty(FDroidApp.repo.address))
             return;
         // the fingerprint is not useful on the button label
-        String buttonLabel = KerplappApplication.repo.address.replaceAll("\\?.*$", "");
+        String buttonLabel = FDroidApp.repo.address.replaceAll("\\?.*$", "");
         repoSwitch.setText(buttonLabel);
         repoSwitch.setTextOn(buttonLabel);
         repoSwitch.setTextOff(buttonLabel);
@@ -197,12 +197,12 @@ public class KerplappActivity extends Activity {
         new QrGenAsyncTask(this, R.id.repoQrCode).execute(qrUriString);
 
         TextView wifiNetworkNameTextView = (TextView) findViewById(R.id.wifiNetworkName);
-        wifiNetworkNameTextView.setText(KerplappApplication.ssid);
+        wifiNetworkNameTextView.setText(FDroidApp.ssid);
 
         TextView fingerprintTextView = (TextView) findViewById(R.id.fingerprint);
-        if (KerplappApplication.repo.fingerprint != null) {
+        if (FDroidApp.repo.fingerprint != null) {
             fingerprintTextView.setVisibility(View.VISIBLE);
-            fingerprintTextView.setText(KerplappApplication.repo.fingerprint);
+            fingerprintTextView.setText(FDroidApp.repo.fingerprint);
         } else {
             fingerprintTextView.setVisibility(View.GONE);
         }
@@ -212,7 +212,7 @@ public class KerplappActivity extends Activity {
         // ipAddressString. We'll generate it even if useHttps is false
         // to simplify having to detect when that preference changes.
         try {
-            KerplappApplication.localRepoKeyStore.setupHTTPSCertificate();
+            FDroidApp.localRepoKeyStore.setupHTTPSCertificate();
         } catch (UnrecoverableKeyException e) {
             e.printStackTrace();
         } catch (CertificateException e) {
@@ -267,24 +267,24 @@ public class KerplappActivity extends Activity {
         protected Void doInBackground(Void... params) {
             try {
                 publishProgress(getString(R.string.deleting_repo));
-                KerplappApplication.localRepo.deleteRepo();
+                FDroidApp.localRepo.deleteRepo();
                 for (String app : selectedApps) {
                     publishProgress(String.format(getString(R.string.adding_apks_format), app));
-                    KerplappApplication.localRepo.addApp(getApplicationContext(), app);
+                    FDroidApp.localRepo.addApp(getApplicationContext(), app);
                 }
                 publishProgress(getString(R.string.writing_index_xml));
-                KerplappApplication.localRepo.writeIndexXML();
+                FDroidApp.localRepo.writeIndexXML();
                 publishProgress(getString(R.string.writing_index_jar));
-                KerplappApplication.localRepo.writeIndexJar();
+                FDroidApp.localRepo.writeIndexJar();
                 publishProgress(getString(R.string.linking_apks));
-                KerplappApplication.localRepo.copyApksToRepo();
+                FDroidApp.localRepo.copyApksToRepo();
                 publishProgress(getString(R.string.copying_icons));
                 // run the icon copy without progress, its not a blocker
                 new AsyncTask<Void, Void, Void>() {
 
                     @Override
                     protected Void doInBackground(Void... params) {
-                        KerplappApplication.localRepo.copyIconsToRepo();
+                        FDroidApp.localRepo.copyIconsToRepo();
                         return null;
                     }
                 }.execute();

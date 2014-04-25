@@ -22,7 +22,7 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import net.binaryparadox.kerplapp.KerplappApplication;
+import net.binaryparadox.kerplapp.FDroidApp;
 import net.binaryparadox.kerplapp.SettingsActivity;
 
 import org.fdroid.fdroid.Utils;
@@ -718,7 +718,7 @@ public class LocalRepo {
         jo.close();
         bo.close();
 
-        KerplappApplication.localRepoKeyStore.signZip(xmlIndexJarUnsigned, xmlIndexJar);
+        FDroidApp.localRepoKeyStore.signZip(xmlIndexJarUnsigned, xmlIndexJar);
 
         xmlIndexJarUnsigned.delete();
     }

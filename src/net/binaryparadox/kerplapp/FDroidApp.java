@@ -29,7 +29,7 @@ import java.security.cert.CertificateException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class KerplappApplication extends Application {
+public class FDroidApp extends Application {
     private static final String TAG = "KerplappApplication";
     private static final String keyStoreDirName = "keystore";
     private static final String keyStoreFileName = "kerplapp.bks";

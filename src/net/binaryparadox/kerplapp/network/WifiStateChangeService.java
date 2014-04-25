@@ -13,7 +13,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import net.binaryparadox.kerplapp.KerplappApplication;
+import net.binaryparadox.kerplapp.FDroidApp;
 
 import org.fdroid.fdroid.Utils;
 
@@ -49,22 +49,22 @@ public class WifiStateChangeService extends Service {
                     Log.i(TAG, "waiting for the wifi to be enabled...");
                     Thread.sleep(3000);
                 }
-                KerplappApplication.ipAddress = wifiManager.getConnectionInfo().getIpAddress();
-                while (KerplappApplication.ipAddress == 0) {
+                FDroidApp.ipAddress = wifiManager.getConnectionInfo().getIpAddress();
+                while (FDroidApp.ipAddress == 0) {
                     Log.i(TAG, "waiting for an IP address...");
                     Thread.sleep(3000);
-                    KerplappApplication.ipAddress = wifiManager.getConnectionInfo().getIpAddress();
+                    FDroidApp.ipAddress = wifiManager.getConnectionInfo().getIpAddress();
                 }
                 WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-                KerplappApplication.ipAddress = wifiInfo.getIpAddress();
-                KerplappApplication.ipAddressString = String.format(Locale.ENGLISH, "%d.%d.%d.%d",
-                        (KerplappApplication.ipAddress & 0xff),
-                        (KerplappApplication.ipAddress >> 8 & 0xff),
-                        (KerplappApplication.ipAddress >> 16 & 0xff),
-                        (KerplappApplication.ipAddress >> 24 & 0xff));
+                FDroidApp.ipAddress = wifiInfo.getIpAddress();
+                FDroidApp.ipAddressString = String.format(Locale.ENGLISH, "%d.%d.%d.%d",
+                        (FDroidApp.ipAddress & 0xff),
+                        (FDroidApp.ipAddress >> 8 & 0xff),
+                        (FDroidApp.ipAddress >> 16 & 0xff),
+                        (FDroidApp.ipAddress >> 24 & 0xff));
 
-                KerplappApplication.ssid = wifiInfo.getSSID().replaceAll("^\"(.*)\"$", "$1");
-                KerplappApplication.bssid = wifiInfo.getBSSID();
+                FDroidApp.ssid = wifiInfo.getSSID().replaceAll("^\"(.*)\"$", "$1");
+                FDroidApp.bssid = wifiInfo.getBSSID();
 
                 String scheme;
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -72,11 +72,11 @@ public class WifiStateChangeService extends Service {
                     scheme = "https";
                 else
                     scheme = "http";
-                KerplappApplication.repo.address = String.format(Locale.ENGLISH, "%s://%s:%d/fdroid/repo",
-                        scheme, KerplappApplication.ipAddressString, KerplappApplication.port);
-                KerplappApplication.repo.fingerprint = KerplappApplication.localRepoKeyStore.getFingerprint();
-                KerplappApplication.localRepo.setUriString(KerplappApplication.repo.address);
-                KerplappApplication.localRepo.writeIndexPage(Utils.getSharingUri(context).toString());
+                FDroidApp.repo.address = String.format(Locale.ENGLISH, "%s://%s:%d/fdroid/repo",
+                        scheme, FDroidApp.ipAddressString, FDroidApp.port);
+                FDroidApp.repo.fingerprint = FDroidApp.localRepoKeyStore.getFingerprint();
+                FDroidApp.localRepo.setUriString(FDroidApp.repo.address);
+                FDroidApp.localRepo.writeIndexPage(Utils.getSharingUri(context).toString());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
