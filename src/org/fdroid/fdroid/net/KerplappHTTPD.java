@@ -1,5 +1,5 @@
 
-package net.binaryparadox.kerplapp.network;
+package org.fdroid.fdroid.net;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.SimpleWebServer;

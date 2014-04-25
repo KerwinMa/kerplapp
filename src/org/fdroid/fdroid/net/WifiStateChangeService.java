@@ -1,5 +1,5 @@
 
-package net.binaryparadox.kerplapp.network;
+package org.fdroid.fdroid.net;
 
 import android.app.Service;
 import android.content.Context;

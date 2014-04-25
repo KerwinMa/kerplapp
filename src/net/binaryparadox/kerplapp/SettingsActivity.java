@@ -12,7 +12,7 @@ import android.preference.EditTextPreference;
 import android.preference.PreferenceActivity;
 import android.text.TextUtils;
 
-import net.binaryparadox.kerplapp.network.WifiStateChangeService;
+import org.fdroid.fdroid.net.WifiStateChangeService;
 
 @SuppressWarnings("deprecation") //See Task #2955
 public class SettingsActivity extends PreferenceActivity

@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 
-import net.binaryparadox.kerplapp.network.WifiStateChangeService;
+import org.fdroid.fdroid.net.WifiStateChangeService;
 
 public class WifiStateChangeReceiver extends BroadcastReceiver {
 

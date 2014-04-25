@@ -55,7 +55,7 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".network.WifiStateChangeService" />
+        <service android:name="org.fdroid.fdroid.net.WifiStateChangeService" />
         <service android:name="org.fdroid.fdroid.localrepo.LocalRepoService" />
     </application>
 

@@ -16,7 +16,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import net.binaryparadox.kerplapp.network.WifiStateChangeService;
+import org.fdroid.fdroid.net.WifiStateChangeService;
 
 public class QrWizardWifiNetworkActivity extends Activity {
     private static final String TAG = "QrWizardWifiNetworkActivity";

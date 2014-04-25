@@ -23,8 +23,9 @@ import android.util.Log;
 
 import net.binaryparadox.kerplapp.LocalRepoActivity;
 import net.binaryparadox.kerplapp.R;
-import net.binaryparadox.kerplapp.network.KerplappHTTPD;
-import net.binaryparadox.kerplapp.network.WifiStateChangeService;
+
+import org.fdroid.fdroid.net.KerplappHTTPD;
+import org.fdroid.fdroid.net.WifiStateChangeService;
 
 import java.io.IOException;
 

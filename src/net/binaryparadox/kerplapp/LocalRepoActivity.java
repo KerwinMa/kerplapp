@@ -28,9 +28,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import net.binaryparadox.kerplapp.network.WifiStateChangeService;
 
 import org.fdroid.fdroid.Utils;
+import org.fdroid.fdroid.net.WifiStateChangeService;
 import org.spongycastle.operator.OperatorCreationException;
 
 import java.io.FileNotFoundException;
