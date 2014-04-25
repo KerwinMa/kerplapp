@@ -31,6 +31,9 @@ public class QrWizardWifiNetworkActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+        wifiManager.setWifiEnabled(true);
+        KerplappApplication.startLocalRepoService();
+
         setContentView(R.layout.qr_wizard_activity);
         TextView instructions = (TextView) findViewById(R.id.qrWizardInstructions);
         instructions.setText(R.string.qr_wizard_wifi_network_instructions);

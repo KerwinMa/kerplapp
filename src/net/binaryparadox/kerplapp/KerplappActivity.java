@@ -122,10 +122,6 @@ public class KerplappActivity extends Activity {
                 startActivityForResult(new Intent(this, AppSelectActivity.class), UPDATE_REPO);
                 return true;
             case R.id.menu_send_fdroid_via_wifi:
-                if (!repoSwitch.isChecked()) {
-                    KerplappApplication.startLocalRepoService();
-                    repoSwitch.setChecked(true);
-                }
                 startActivity(new Intent(this, QrWizardWifiNetworkActivity.class));
                 return true;
             case R.id.menu_settings:
