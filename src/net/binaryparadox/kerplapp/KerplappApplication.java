@@ -6,6 +6,7 @@ import android.content.Context;
 
 import net.binaryparadox.kerplapp.repo.LocalRepo;
 
+import org.fdroid.fdroid.data.Repo;
 import org.spongycastle.operator.OperatorCreationException;
 
 import java.io.File;
@@ -22,10 +23,13 @@ public class KerplappApplication extends Application {
     private static final String keyStoreDirName = "keystore";
     private static final String keyStoreFileName = "kerplapp.bks";
 
-    // the local repo on this device
+    // for the local repo on this device, all static since there is only one
     public static int ipAddress = 0;
     public static int port = 8888;
     public static String ipAddressString = null;
+    public static String ssid = "";
+    public static String bssid = "";
+    public static Repo repo = new Repo();
     public static LocalRepo localRepo = null;
     public static LocalRepoKeyStore localRepoKeyStore = null;
     static Set<String> selectedApps = new HashSet<String>();

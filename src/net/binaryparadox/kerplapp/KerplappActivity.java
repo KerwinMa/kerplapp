@@ -38,7 +38,6 @@ import android.widget.ToggleButton;
 import net.binaryparadox.kerplapp.repo.LocalRepoService;
 
 import org.fdroid.fdroid.Utils;
-import org.fdroid.fdroid.data.Repo;
 import org.spongycastle.operator.OperatorCreationException;
 
 import java.io.FileNotFoundException;
@@ -55,7 +54,6 @@ public class KerplappActivity extends Activity {
 
     private WifiManager wifiManager;
     private ToggleButton repoSwitch;
-    private Repo repo = new Repo();
 
     private boolean localRepoServiceIsBound = false;
     private Messenger localRepoServiceMessenger = null;
@@ -200,19 +198,19 @@ public class KerplappActivity extends Activity {
             scheme = "https";
         else
             scheme = "http";
-        repo.address = String.format(Locale.ENGLISH, "%s://%s:%d/fdroid/repo",
+        KerplappApplication.repo.address = String.format(Locale.ENGLISH, "%s://%s:%d/fdroid/repo",
                 scheme, KerplappApplication.ipAddressString, KerplappApplication.port);
-        repo.fingerprint = KerplappApplication.localRepoKeyStore.getFingerprint();
+        KerplappApplication.repo.fingerprint = KerplappApplication.localRepoKeyStore.getFingerprint();
 
         // the fingerprint is not useful on the button label
-        String buttonLabel = repo.address.replaceAll("\\?.*$", "");
+        String buttonLabel = KerplappApplication.repo.address.replaceAll("\\?.*$", "");
         repoSwitch.setText(buttonLabel);
         repoSwitch.setTextOn(buttonLabel);
         repoSwitch.setTextOff(buttonLabel);
+        String fdroidrepoUriString = Utils.getSharingUri(this).toString();
         ImageView repoQrCodeImageView = (ImageView) findViewById(R.id.repoQrCode);
         // fdroidrepo:// and fdroidrepos:// ensures it goes directly to F-Droid
-        String fdroidrepoUriString = Utils.getSharingUri(this, repo).toString();
-        KerplappApplication.localRepo.setUriString(repo.address);
+        KerplappApplication.localRepo.setUriString(KerplappApplication.repo.address);
         KerplappApplication.localRepo.writeIndexPage(fdroidrepoUriString);
         /*
          * Set URL to UPPER for compact QR Code, FDroid will translate it back.
@@ -230,12 +228,12 @@ public class KerplappActivity extends Activity {
         repoQrCodeImageView.setImageBitmap(qrBitmap);
 
         TextView wifiNetworkNameTextView = (TextView) findViewById(R.id.wifiNetworkName);
-        wifiNetworkNameTextView.setText(ssid);
+        wifiNetworkNameTextView.setText(KerplappApplication.ssid);
 
         TextView fingerprintTextView = (TextView) findViewById(R.id.fingerprint);
-        if (repo.fingerprint != null) {
+        if (KerplappApplication.repo.fingerprint != null) {
             fingerprintTextView.setVisibility(View.VISIBLE);
-            fingerprintTextView.setText(repo.fingerprint);
+            fingerprintTextView.setText(KerplappApplication.repo.fingerprint);
         } else {
             fingerprintTextView.setVisibility(View.GONE);
         }
@@ -268,7 +266,7 @@ public class KerplappActivity extends Activity {
             if (nfcAdapter == null)
                 return;
             nfcAdapter.setNdefPushMessage(new NdefMessage(new NdefRecord[] {
-                    NdefRecord.createUri(Utils.getSharingUri(this, repo)),
+                    NdefRecord.createUri(Utils.getSharingUri(this)),
             }), this);
         }
     }

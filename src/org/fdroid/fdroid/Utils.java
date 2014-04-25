@@ -7,8 +7,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.net.Uri;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
@@ -19,7 +17,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.encode.Contents;
 import com.google.zxing.encode.QRCodeEncoder;
 
-import org.fdroid.fdroid.data.Repo;
+import net.binaryparadox.kerplapp.KerplappApplication;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -129,18 +127,15 @@ public class Utils {
         return null;
     }
 
-    public static Uri getSharingUri(Context context, Repo repo) {
-        Uri uri = Uri.parse(repo.address.replaceFirst("http", "fdroidrepo"));
+    public static Uri getSharingUri(Context context) {
+        // fdroidrepo:// and fdroidrepos:// ensures it goes directly to F-Droid
+        Uri uri = Uri.parse(KerplappApplication.repo.address.replaceFirst("http", "fdroidrepo"));
         Uri.Builder b = uri.buildUpon();
-        b.appendQueryParameter("fingerprint", repo.fingerprint);
-        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        String ssid = wifiInfo.getSSID().replaceAll("^\"(.*)\"$", "$1");
-        String bssid = wifiInfo.getBSSID();
-        if (!TextUtils.isEmpty(bssid)) {
-            b.appendQueryParameter("bssid", Uri.encode(bssid));
-            if (!TextUtils.isEmpty(ssid))
-                b.appendQueryParameter("ssid", Uri.encode(ssid));
+        b.appendQueryParameter("fingerprint", KerplappApplication.repo.fingerprint);
+        if (!TextUtils.isEmpty(KerplappApplication.bssid)) {
+            b.appendQueryParameter("bssid", Uri.encode(KerplappApplication.bssid));
+            if (!TextUtils.isEmpty(KerplappApplication.ssid))
+                b.appendQueryParameter("ssid", Uri.encode(KerplappApplication.ssid));
         }
         return b.build();
     }
