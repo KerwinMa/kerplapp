@@ -2,9 +2,17 @@
 package net.binaryparadox.kerplapp;
 
 import android.app.Application;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 
 import net.binaryparadox.kerplapp.repo.LocalRepo;
+import net.binaryparadox.kerplapp.repo.LocalRepoService;
 
 import org.fdroid.fdroid.data.Repo;
 import org.spongycastle.operator.OperatorCreationException;
@@ -34,6 +42,10 @@ public class KerplappApplication extends Application {
     public static LocalRepoKeyStore localRepoKeyStore = null;
     static Set<String> selectedApps = new HashSet<String>();
 
+    private static Context serviceContext;
+    private static Messenger localRepoServiceMessenger = null;
+    private static boolean localRepoServiceIsBound = false;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -43,6 +55,8 @@ public class KerplappApplication extends Application {
 
         File appKeyStoreDir = getDir(keyStoreDirName, Context.MODE_PRIVATE);
         File keyStoreFile = new File(appKeyStoreDir, keyStoreFileName);
+
+        serviceContext = this;
 
         if (localRepo == null) {
             localRepo = new LocalRepo(getApplicationContext());
@@ -68,6 +82,43 @@ public class KerplappApplication extends Application {
             } catch (OperatorCreationException e) {
                 e.printStackTrace();
             } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            localRepoServiceMessenger = new Messenger(service);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName className) {
+            localRepoServiceMessenger = null;
+        }
+    };
+
+    public static void startLocalRepoService() {
+        serviceContext.bindService(new Intent(serviceContext, LocalRepoService.class),
+                serviceConnection, Context.BIND_AUTO_CREATE);
+        localRepoServiceIsBound = true;
+    }
+
+    public static void stopLocalRepoService() {
+        if (localRepoServiceIsBound) {
+            serviceContext.unbindService(serviceConnection);
+            localRepoServiceIsBound = false;
+        }
+    }
+
+    public static void restartLocalRepoService() {
+        if (localRepoServiceMessenger != null) {
+            try {
+                Message msg = Message.obtain(null,
+                        LocalRepoService.RESTART, LocalRepoService.RESTART, 0);
+                localRepoServiceMessenger.send(msg);
+            } catch (RemoteException e) {
                 e.printStackTrace();
             }
         }
