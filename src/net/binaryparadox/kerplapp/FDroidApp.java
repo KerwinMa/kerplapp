@@ -15,7 +15,7 @@ import android.os.RemoteException;
 import net.binaryparadox.kerplapp.network.WifiStateChangeService;
 
 import org.fdroid.fdroid.data.Repo;
-import org.fdroid.fdroid.localrepo.LocalRepo;
+import org.fdroid.fdroid.localrepo.LocalRepoManager;
 import org.fdroid.fdroid.localrepo.LocalRepoKeyStore;
 import org.fdroid.fdroid.localrepo.LocalRepoService;
 import org.spongycastle.operator.OperatorCreationException;
@@ -41,7 +41,7 @@ public class FDroidApp extends Application {
     public static String ssid = "";
     public static String bssid = "";
     public static Repo repo = new Repo();
-    public static LocalRepo localRepo = null;
+    public static LocalRepoManager localRepo = null;
     public static LocalRepoKeyStore localRepoKeyStore = null;
     static Set<String> selectedApps = new HashSet<String>();
 
@@ -62,7 +62,7 @@ public class FDroidApp extends Application {
         serviceContext = this;
 
         if (localRepo == null) {
-            localRepo = new LocalRepo(getApplicationContext());
+            localRepo = new LocalRepoManager(getApplicationContext());
 
             try {
                 localRepo.init();
