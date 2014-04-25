@@ -38,7 +38,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AppSelectActivity"
+            android:name=".SelectLocalAppsActivity"
             android:label="@string/title_activity_app_select"
             android:parentActivityName=".KerplappActivity" >
             <meta-data

@@ -34,7 +34,7 @@ import java.util.List;
 public class AppListFragment extends ListFragment implements LoaderCallbacks<List<AppEntry>> {
 
     private AppListAdapter adapter;
-    private AppSelectActivity appSelectActivity;
+    private SelectLocalAppsActivity appSelectActivity;
     private ActionMode mActionMode = null;
 
     @Override
@@ -43,7 +43,7 @@ public class AppListFragment extends ListFragment implements LoaderCallbacks<Lis
 
         setEmptyText(getString(R.string.no_applications_found));
 
-        appSelectActivity = (AppSelectActivity) getActivity();
+        appSelectActivity = (SelectLocalAppsActivity) getActivity();
 
         adapter = new AppListAdapter(getActivity());
         setListAdapter(adapter);

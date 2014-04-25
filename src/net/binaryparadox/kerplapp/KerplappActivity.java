@@ -118,7 +118,7 @@ public class KerplappActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_setup_repo:
-                startActivityForResult(new Intent(this, AppSelectActivity.class), UPDATE_REPO);
+                startActivityForResult(new Intent(this, SelectLocalAppsActivity.class), UPDATE_REPO);
                 return true;
             case R.id.menu_send_fdroid_via_wifi:
                 startActivity(new Intent(this, QrWizardWifiNetworkActivity.class));

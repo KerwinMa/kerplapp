@@ -12,7 +12,7 @@ import android.view.MenuItem;
 
 @TargetApi(11)
 // TODO replace with appcompat-v7
-public class AppSelectActivity extends FragmentActivity {
+public class SelectLocalAppsActivity extends FragmentActivity {
     private final String TAG = "AppSelectActivity";
     private AppListFragment appListFragment = null;
 
