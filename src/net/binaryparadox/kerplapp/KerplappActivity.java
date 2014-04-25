@@ -62,7 +62,6 @@ public class KerplappActivity extends Activity {
 
     private int SET_IP_ADDRESS = 7345;
     private int UPDATE_REPO = 7346;
-    private int SEND_TEST_REPO = 7347;
 
     /** Called when the activity is first created. */
     @Override
@@ -126,18 +125,6 @@ public class KerplappActivity extends Activity {
                 }
                 startActivity(new Intent(this, QrWizardWifiNetworkActivity.class));
                 return true;
-            case R.id.menu_send_to_fdroid:
-                if (repo.address == null) {
-                    Toast.makeText(this, "The repo is not configured yet!", Toast.LENGTH_LONG)
-                            .show();
-                } else {
-                    // TODO check if F-Droid is actually installed instead of
-                    // just crashing
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Utils.getSharingUri(this, repo));
-                    intent.setClassName("org.fdroid.fdroid", "org.fdroid.fdroid.ManageRepo");
-                    startActivityForResult(intent, SEND_TEST_REPO);
-                }
-                return true;
             case R.id.menu_settings:
                 startActivityForResult(new Intent(this, SettingsActivity.class), SET_IP_ADDRESS);
                 return true;
@@ -155,10 +142,6 @@ public class KerplappActivity extends Activity {
             setIpAddressFromWifi();
             new UpdateAsyncTask(this, KerplappApplication.selectedApps.toArray(new String[0]))
                     .execute();
-        } else if (requestCode == SEND_TEST_REPO) {
-            Intent intent = new Intent();
-            intent.setClassName("org.fdroid.fdroid", "org.fdroid.fdroid.ManageRepo");
-            startActivity(intent);
         }
     }
 
