@@ -25,6 +25,7 @@ import android.util.Log;
 import net.binaryparadox.kerplapp.FDroidApp;
 import net.binaryparadox.kerplapp.SettingsActivity;
 
+import org.fdroid.fdroid.Hasher;
 import org.fdroid.fdroid.Utils;
 import org.fdroid.fdroid.data.Apk;
 import org.fdroid.fdroid.data.App;
@@ -545,6 +546,7 @@ public class LocalRepoManager {
         repo.setAttribute("icon", "blah.png");
         repo.setAttribute("maxage", String.valueOf(repoMaxAge));
         repo.setAttribute("name", repoName + " on " + ipAddressString);
+        repo.setAttribute("pubkey", Hasher.hex(FDroidApp.localRepoKeyStore.getCertificate()));
         long timestamp = System.currentTimeMillis() / 1000L;
         repo.setAttribute("timestamp", String.valueOf(timestamp));
         repo.setAttribute("url", uriString);

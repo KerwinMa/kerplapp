@@ -9,6 +9,7 @@ import android.util.Log;
 import net.binaryparadox.kerplapp.FDroidApp;
 
 import java.io.BufferedInputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -101,6 +102,17 @@ public class Utils {
     /* this stuff is already included in FDroid */
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd",
             Locale.ENGLISH);
+
+    public static void closeQuietly(Closeable closeable) {
+        if (closeable == null) {
+            return;
+        }
+        try {
+            closeable.close();
+        } catch (IOException ioe) {
+            // ignore
+        }
+    }
 
     public static class CommaSeparatedList implements Iterable<String> {
         private String value;
