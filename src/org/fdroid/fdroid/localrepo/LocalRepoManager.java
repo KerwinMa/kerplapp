@@ -543,11 +543,11 @@ public class LocalRepoManager {
 
         Element repo = doc.createElement("repo");
         repo.setAttribute("icon", "blah.png");
+        repo.setAttribute("maxage", String.valueOf(repoMaxAge));
         repo.setAttribute("name", repoName + " on " + ipAddressString);
-        repo.setAttribute("url", uriString);
         long timestamp = System.currentTimeMillis() / 1000L;
         repo.setAttribute("timestamp", String.valueOf(timestamp));
-        repo.setAttribute("maxage", String.valueOf(repoMaxAge));
+        repo.setAttribute("url", uriString);
         rootElement.appendChild(repo);
 
         Element repoDesc = doc.createElement("description");
