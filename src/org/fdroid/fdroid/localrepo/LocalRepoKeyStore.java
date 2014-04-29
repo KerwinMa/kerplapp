@@ -220,7 +220,7 @@ public class LocalRepoKeyStore {
                 digest.update(cert.getEncoded());
                 byte[] fingerprint = digest.digest();
                 Formatter formatter = new Formatter(new StringBuilder());
-                for (int i = 1; i < fingerprint.length; i++) {
+                for (int i = 0; i < fingerprint.length; i++) {
                     formatter.format("%02X", fingerprint[i]);
                 }
                 ret = formatter.toString();
