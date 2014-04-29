@@ -213,9 +213,8 @@ public class LocalRepoKeyStore {
     public String getFingerprint() {
         String ret = null;
         try {
-            Key key = keyStore.getKey(INDEX_CERT_ALIAS, "".toCharArray());
-            if (key instanceof PrivateKey) {
-                Certificate cert = keyStore.getCertificate(INDEX_CERT_ALIAS);
+            Certificate cert = getCertificate();
+            if (cert != null) {
                 MessageDigest digest = MessageDigest.getInstance("SHA-256");
                 digest.update(cert.getEncoded());
                 byte[] fingerprint = digest.digest();
@@ -231,6 +230,21 @@ public class LocalRepoKeyStore {
         }
 
         return ret;
+    }
+
+    public Certificate getCertificate() {
+        try {
+            Key key = keyStore.getKey(INDEX_CERT_ALIAS, "".toCharArray());
+            if (key instanceof PrivateKey)
+                return keyStore.getCertificate(INDEX_CERT_ALIAS);
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (UnrecoverableKeyException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private void addToStore(String alias, KeyPair kp, Certificate cert) throws KeyStoreException,
