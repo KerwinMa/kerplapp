@@ -22,71 +22,28 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * The UAppIDUtils class provides static utility methods for calculating
- * application UAppID's. Provided a binary file or a package name this class is
- * capable of creating a UAppID returned as a string literal.
- */
-public class Utils {
-    private static final String TAG = "Utils";
 
-    public static String hashBytes(byte[] input, String algo) {
+public final class Utils {
+
+    /* this stuff is already included in FDroid */
+    public static final int BUFFER_SIZE = 4096;
+
+    // The date format used for storing dates (e.g. lastupdated, added) in the
+    // database.
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+
+    public static void closeQuietly(Closeable closeable) {
+        if (closeable == null) {
+            return;
+        }
         try {
-            MessageDigest md = MessageDigest.getInstance(algo);
-            byte[] hashBytes = md.digest(input);
-            String hash = toHexString(hashBytes);
-
-            md.reset();
-            return hash;
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "Device does not support " + algo + " MessageDisgest algorithm");
-            return null;
+            closeable.close();
+        } catch (IOException ioe) {
+            // ignore
         }
     }
 
-    public static String getBinaryHash(File apk, String algo) {
-        FileInputStream fis = null;
-        BufferedInputStream bis = null;
-        try {
-            MessageDigest md = MessageDigest.getInstance(algo);
-            fis = new FileInputStream(apk);
-            bis = new BufferedInputStream(fis);
-
-            byte[] dataBytes = new byte[524288];
-            int nread = 0;
-
-            while ((nread = bis.read(dataBytes)) != -1)
-                md.update(dataBytes, 0, nread);
-
-            byte[] mdbytes = md.digest();
-            return toHexString(mdbytes);
-        } catch (IOException e) {
-            Log.e(TAG, "Error reading \"" + apk.getAbsolutePath() + "\" to compute SHA1 hash.");
-            return null;
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "Device does not support " + algo + " MessageDisgest algorithm");
-            return null;
-        } finally {
-            if (fis != null)
-                try {
-                    fis.close();
-                } catch (IOException e) {
-                    return null;
-                }
-        }
-    }
-
-    /**
-     * Computes the base 16 representation of the byte array argument.
-     *
-     * @param bytes an array of bytes.
-     * @return the bytes represented as a string of hexadecimal digits.
-     */
-    public static String toHexString(byte[] bytes) {
-        BigInteger bi = new BigInteger(1, bytes);
-        return String.format("%0" + (bytes.length << 1) + "X", bi);
-    }
-
+    // this is already included in FDroid, but needs to be modified
     public static Uri getSharingUri(Context context) {
         // fdroidrepo:// and fdroidrepos:// ensures it goes directly to F-Droid
         Uri uri = Uri.parse(FDroidApp.repo.address.replaceFirst("http", "fdroidrepo"));
@@ -98,25 +55,6 @@ public class Utils {
                 b.appendQueryParameter("ssid", Uri.encode(FDroidApp.ssid));
         }
         return b.build();
-    }
-
-    public static String getDefaultRepoName() {
-        return (Build.BRAND + " " + Build.MODEL).replaceAll(" ", "-");
-    }
-
-    /* this stuff is already included in FDroid */
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd",
-            Locale.ENGLISH);
-
-    public static void closeQuietly(Closeable closeable) {
-        if (closeable == null) {
-            return;
-        }
-        try {
-            closeable.close();
-        } catch (IOException ioe) {
-            // ignore
-        }
     }
 
     public static class CommaSeparatedList implements Iterable<String> {
@@ -131,7 +69,7 @@ public class Utils {
                 return null;
             else {
                 StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < list.size(); i++) {
+                for(int i = 0; i < list.size(); i ++) {
                     if (i > 0) {
                         sb.append(',');
                     }
@@ -176,4 +114,67 @@ public class Utils {
             return false;
         }
     }
+
+    // this is all new stuff being added
+    public static String hashBytes(byte[] input, String algo) {
+        try {
+            MessageDigest md = MessageDigest.getInstance(algo);
+            byte[] hashBytes = md.digest(input);
+            String hash = toHexString(hashBytes);
+
+            md.reset();
+            return hash;
+        } catch (NoSuchAlgorithmException e) {
+            Log.e("FDroid", "Device does not support " + algo + " MessageDisgest algorithm");
+            return null;
+        }
+    }
+
+    public static String getBinaryHash(File apk, String algo) {
+        FileInputStream fis = null;
+        BufferedInputStream bis = null;
+        try {
+            MessageDigest md = MessageDigest.getInstance(algo);
+            fis = new FileInputStream(apk);
+            bis = new BufferedInputStream(fis);
+
+            byte[] dataBytes = new byte[524288];
+            int nread = 0;
+
+            while ((nread = bis.read(dataBytes)) != -1)
+                md.update(dataBytes, 0, nread);
+
+            byte[] mdbytes = md.digest();
+            return toHexString(mdbytes);
+        } catch (IOException e) {
+            Log.e("FDroid", "Error reading \"" + apk.getAbsolutePath() + "\" to compute SHA1 hash.");
+            return null;
+        } catch (NoSuchAlgorithmException e) {
+            Log.e("FDroid", "Device does not support " + algo + " MessageDisgest algorithm");
+            return null;
+        } finally {
+            if (fis != null)
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    return null;
+                }
+        }
+    }
+
+    /**
+     * Computes the base 16 representation of the byte array argument.
+     *
+     * @param bytes an array of bytes.
+     * @return the bytes represented as a string of hexadecimal digits.
+     */
+    public static String toHexString(byte[] bytes) {
+        BigInteger bi = new BigInteger(1, bytes);
+        return String.format("%0" + (bytes.length << 1) + "X", bi);
+    }
+
+    public static String getDefaultRepoName() {
+        return (Build.BRAND + " " + Build.MODEL).replaceAll(" ", "-");
+    }
+
 }
