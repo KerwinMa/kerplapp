@@ -123,7 +123,7 @@ public class LocalRepoActivity extends Activity {
                 startActivity(new Intent(this, QrWizardWifiNetworkActivity.class));
                 return true;
             case R.id.menu_settings:
-                startActivityForResult(new Intent(this, SettingsActivity.class), SET_IP_ADDRESS);
+                startActivityForResult(new Intent(this, PreferencesActivity.class), SET_IP_ADDRESS);
                 return true;
         }
         return false;

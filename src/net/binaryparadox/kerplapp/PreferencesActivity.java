@@ -16,7 +16,7 @@ import org.fdroid.fdroid.Utils;
 import org.fdroid.fdroid.net.WifiStateChangeService;
 
 @SuppressWarnings("deprecation") //See Task #2955
-public class SettingsActivity extends PreferenceActivity
+public class PreferencesActivity extends PreferenceActivity
         implements OnSharedPreferenceChangeListener {
 
     @Override
@@ -60,7 +60,7 @@ public class SettingsActivity extends PreferenceActivity
                     if (wifiState == WifiManager.WIFI_STATE_ENABLING
                             || wifiState == WifiManager.WIFI_STATE_ENABLED) {
 
-                        startService(new Intent(SettingsActivity.this, WifiStateChangeService.class));
+                        startService(new Intent(PreferencesActivity.this, WifiStateChangeService.class));
                     }
                     return null;
                 }

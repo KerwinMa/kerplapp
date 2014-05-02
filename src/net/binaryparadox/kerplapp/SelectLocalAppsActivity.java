@@ -44,7 +44,7 @@ public class SelectLocalAppsActivity extends FragmentActivity {
                 finish();
                 return true;
             case R.id.action_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
+                startActivity(new Intent(this, PreferencesActivity.class));
                 return true;
         }
         return super.onOptionsItemSelected(item);
