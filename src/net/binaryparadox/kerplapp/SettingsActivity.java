@@ -6,12 +6,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.PreferenceActivity;
 import android.text.TextUtils;
 
+import org.fdroid.fdroid.Utils;
 import org.fdroid.fdroid.net.WifiStateChangeService;
 
 @SuppressWarnings("deprecation") //See Task #2955
@@ -32,7 +32,7 @@ public class SettingsActivity extends PreferenceActivity
         EditTextPreference pref = (EditTextPreference) findPreference("repo_name");
         String current = pref.getText();
         if (TextUtils.isEmpty(current)) {
-            String defaultValue = getDefaultRepoName();
+            String defaultValue = Utils.getDefaultRepoName();
             pref.setText(defaultValue);
         }
         setSummaries();
@@ -63,13 +63,9 @@ public class SettingsActivity extends PreferenceActivity
     private void setSummaries() {
         EditTextPreference pref = (EditTextPreference) findPreference("repo_name");
         String current = pref.getText();
-        if (current.equals(getDefaultRepoName()))
+        if (current.equals(Utils.getDefaultRepoName()))
             pref.setSummary(R.string.local_repo_name_summary);
         else
             pref.setSummary(current);
-    }
-
-    public static String getDefaultRepoName() {
-        return (Build.BRAND + " " + Build.MODEL).replaceAll(" ", "-");
     }
 }

@@ -23,7 +23,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import net.binaryparadox.kerplapp.FDroidApp;
-import net.binaryparadox.kerplapp.SettingsActivity;
 
 import org.fdroid.fdroid.Hasher;
 import org.fdroid.fdroid.Utils;
@@ -540,7 +539,7 @@ public class LocalRepoManager {
         int repoMaxAge = Float.valueOf(prefs.getString("max_repo_age_days",
                 DEFAULT_REPO_MAX_AGE_DAYS)).intValue();
 
-        String repoName = prefs.getString("repo_name", SettingsActivity.getDefaultRepoName());
+        String repoName = prefs.getString("repo_name", Utils.getDefaultRepoName());
 
         Element repo = doc.createElement("repo");
         repo.setAttribute("icon", "blah.png");

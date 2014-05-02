@@ -3,6 +3,7 @@ package org.fdroid.fdroid;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -97,6 +98,10 @@ public class Utils {
                 b.appendQueryParameter("ssid", Uri.encode(FDroidApp.ssid));
         }
         return b.build();
+    }
+
+    public static String getDefaultRepoName() {
+        return (Build.BRAND + " " + Build.MODEL).replaceAll(" ", "-");
     }
 
     /* this stuff is already included in FDroid */
