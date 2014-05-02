@@ -39,7 +39,7 @@
         </activity>
         <activity
             android:name=".SelectLocalAppsActivity"
-            android:label="@string/title_activity_app_select"
+            android:label="@string/local_repo"
             android:parentActivityName=".LocalRepoActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

@@ -109,7 +109,7 @@ public class LocalRepoActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.kerplapp_activity, menu);
+        inflater.inflate(R.menu.local_repo_activity, menu);
         return true;
     }
 

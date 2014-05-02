@@ -52,12 +52,12 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:text="@string/repo_instructions" />
+        android:text="@string/same_wifi_instructions" />
 
     <ImageView
         android:id="@+id/repoQrCode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:contentDescription="QR Code of repo URL" />
+        android:contentDescription="@string/qr_content_description" />
 
 </LinearLayout>
