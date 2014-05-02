@@ -9,6 +9,8 @@ import android.util.Log;
 
 import net.binaryparadox.kerplapp.FDroidApp;
 
+import org.fdroid.fdroid.data.Repo;
+
 import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -43,12 +45,11 @@ public final class Utils {
         }
     }
 
-    // this is already included in FDroid, but needs to be modified
-    public static Uri getSharingUri(Context context) {
-        // fdroidrepo:// and fdroidrepos:// ensures it goes directly to F-Droid
-        Uri uri = Uri.parse(FDroidApp.repo.address.replaceFirst("http", "fdroidrepo"));
+    public static Uri getSharingUri(Context context, Repo repo) {
+        Uri uri = Uri.parse(repo.address.replaceFirst("http", "fdroidrepo"));
         Uri.Builder b = uri.buildUpon();
-        b.appendQueryParameter("fingerprint", FDroidApp.repo.fingerprint);
+        if (!TextUtils.isEmpty(repo.fingerprint))
+            b.appendQueryParameter("fingerprint", repo.fingerprint);
         if (!TextUtils.isEmpty(FDroidApp.bssid)) {
             b.appendQueryParameter("bssid", Uri.encode(FDroidApp.bssid));
             if (!TextUtils.isEmpty(FDroidApp.ssid))

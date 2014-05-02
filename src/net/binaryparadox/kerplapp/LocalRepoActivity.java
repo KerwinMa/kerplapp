@@ -28,7 +28,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-
 import org.fdroid.fdroid.Utils;
 import org.fdroid.fdroid.net.WifiStateChangeService;
 import org.spongycastle.operator.OperatorCreationException;
@@ -189,7 +188,7 @@ public class LocalRepoActivity extends Activity {
          * wifi AP to join. Lots of QR Scanners are buggy and do not respect
          * custom URI schemes, so we have to use http:// or https:// :-(
          */
-        final String qrUriString = Utils.getSharingUri(this).toString()
+        final String qrUriString = Utils.getSharingUri(this, FDroidApp.repo).toString()
                 .replaceFirst("fdroidrepo", "http")
                 .replaceAll("ssid=[^?]*", "")
                 .toUpperCase(Locale.ENGLISH);
@@ -235,7 +234,7 @@ public class LocalRepoActivity extends Activity {
             if (nfcAdapter == null)
                 return;
             nfcAdapter.setNdefPushMessage(new NdefMessage(new NdefRecord[] {
-                    NdefRecord.createUri(Utils.getSharingUri(this)),
+                    NdefRecord.createUri(Utils.getSharingUri(this, FDroidApp.repo)),
             }), this);
         }
     }

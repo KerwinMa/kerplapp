@@ -76,7 +76,8 @@ public class WifiStateChangeService extends Service {
                         scheme, FDroidApp.ipAddressString, FDroidApp.port);
                 FDroidApp.repo.fingerprint = FDroidApp.localRepoKeyStore.getFingerprint();
                 FDroidApp.localRepo.setUriString(FDroidApp.repo.address);
-                FDroidApp.localRepo.writeIndexPage(Utils.getSharingUri(context).toString());
+                FDroidApp.localRepo.writeIndexPage(
+                        Utils.getSharingUri(context, FDroidApp.repo).toString());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
