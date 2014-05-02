@@ -24,7 +24,7 @@ import android.util.Log;
 import net.binaryparadox.kerplapp.LocalRepoActivity;
 import net.binaryparadox.kerplapp.R;
 
-import org.fdroid.fdroid.net.KerplappHTTPD;
+import org.fdroid.fdroid.net.LocalHTTPD;
 import org.fdroid.fdroid.net.WifiStateChangeService;
 
 import java.io.IOException;
@@ -113,20 +113,19 @@ public class LocalRepoService extends Service {
             @SuppressLint("HandlerLeak")
             @Override
             public void run() {
-                final KerplappHTTPD kerplappHttpd = new KerplappHTTPD(getFilesDir(), true);
-                if (prefs.getBoolean("use_https", false))
-                    kerplappHttpd.enableHTTPS();
+                final LocalHTTPD localHttpd = new LocalHTTPD(getFilesDir(),
+                        prefs.getBoolean("use_https", false));
 
                 Looper.prepare(); // must be run before creating a Handler
                 webServerThreadHandler = new Handler() {
                     @Override
                     public void handleMessage(Message msg) {
                         Log.i(TAG, "we've been asked to stop the webserver: " + msg.obj);
-                        kerplappHttpd.stop();
+                        localHttpd.stop();
                     }
                 };
                 try {
-                    kerplappHttpd.start();
+                    localHttpd.start();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
