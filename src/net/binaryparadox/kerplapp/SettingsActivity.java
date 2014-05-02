@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.PreferenceActivity;
@@ -49,12 +50,21 @@ public class SettingsActivity extends PreferenceActivity
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
         if (key.equals("use_https")) {
             setResult(Activity.RESULT_OK);
-            WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-            int wifiState = wifiManager.getWifiState();
-            if (wifiState == WifiManager.WIFI_STATE_ENABLING
-                    || wifiState == WifiManager.WIFI_STATE_ENABLED) {
-                startService(new Intent(this, WifiStateChangeService.class));
-            }
+            // use AsyncTask to keep this Activity responsive
+            new AsyncTask<Void, Void, Void>() {
+
+                @Override
+                protected Void doInBackground(Void... params) {
+                    WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+                    int wifiState = wifiManager.getWifiState();
+                    if (wifiState == WifiManager.WIFI_STATE_ENABLING
+                            || wifiState == WifiManager.WIFI_STATE_ENABLED) {
+
+                        startService(new Intent(SettingsActivity.this, WifiStateChangeService.class));
+                    }
+                    return null;
+                }
+            }.execute((Void) null);
         } else if (key.equals("repo_name")) {
             setSummaries();
         }
