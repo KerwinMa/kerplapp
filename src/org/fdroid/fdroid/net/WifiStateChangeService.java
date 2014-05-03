@@ -31,12 +31,6 @@ public class WifiStateChangeService extends Service {
         return START_NOT_STICKY;
     }
 
-    @Override
-    public void onDestroy() {
-        Log.i("WifiStateChangeService", "onDestroy");
-        super.onDestroy();
-    }
-
     public class WaitForWifiAsyncTask extends AsyncTask<Void, Void, Void> {
         private static final String TAG = "WaitForWifiAsyncTask";
         private WifiManager wifiManager;
