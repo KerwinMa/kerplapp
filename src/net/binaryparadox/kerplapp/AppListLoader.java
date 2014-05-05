@@ -31,6 +31,7 @@ import android.content.res.Resources;
 import android.support.v4.content.AsyncTaskLoader;
 
 import java.io.File;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -212,5 +213,19 @@ public class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
             }
             return false;
         }
+    }
+
+    /**
+     * Perform alphabetical comparison on AppEntry objects
+     */
+    static class Comparator {
+        static final java.util.Comparator<AppEntry> ALPHA_COMPARATOR = new java.util.Comparator<AppEntry>() {
+            private final Collator collator = Collator.getInstance();
+
+            @Override
+            public int compare(AppEntry lhs, AppEntry rhs) {
+                return collator.compare(lhs.getLabel(), rhs.getLabel());
+            }
+        };
     }
 }
