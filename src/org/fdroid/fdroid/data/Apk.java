@@ -1,7 +1,5 @@
 package org.fdroid.fdroid.data;
 
-import android.content.ContentValues;
-import android.database.Cursor;
 import org.fdroid.fdroid.Utils;
 
 import java.io.File;

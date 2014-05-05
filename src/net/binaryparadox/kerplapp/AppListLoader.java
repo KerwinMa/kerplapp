@@ -95,7 +95,7 @@ public class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
             // determine if the app is already in the repo to preselect it.
             try {
                 entry.loadLabel(pm);
-            	packageInfo = pm.getPackageInfo(entry.getPackageName(), 0);
+                packageInfo = pm.getPackageInfo(entry.getPackageName(), 0);
             } catch (NameNotFoundException e) {
                 e.printStackTrace();
                 continue; //We need the package info for versionCode, skip this app
@@ -104,13 +104,13 @@ public class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
                 continue;
             }
 
-            String apkName = packageInfo.packageName + "_" + packageInfo.versionCode +".apk";
+            String apkName = packageInfo.packageName + "_" + packageInfo.versionCode + ".apk";
             File apkFile = new File(FDroidApp.localRepo.repoDir, apkName);
 
-            if(apkFile.exists())
-            	entry.setEnabled(true);
+            if (apkFile.exists())
+                entry.setEnabled(true);
 
-            entries.add(entry); //Add the entry if nothing has gone wrong
+            entries.add(entry); // Add the entry if nothing has gone wrong
         }
 
         Collections.sort(entries, Comparator.ALPHA_COMPARATOR);
