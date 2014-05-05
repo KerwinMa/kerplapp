@@ -21,13 +21,10 @@ https://developer.android.com/reference/android/content/AsyncTaskLoader.html
 package net.binaryparadox.kerplapp;
 
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.support.v4.content.AsyncTaskLoader;
 
 import java.io.File;
@@ -39,7 +36,6 @@ import java.util.List;
 public class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
 
     private static final String TAG = "AppListLoader";
-    InterestingConfigChanges lastConfig = new InterestingConfigChanges();
     public final PackageManager pm;
 
     List<AppEntry> apps;
@@ -197,22 +193,6 @@ public class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
     private void onReleaseResources(List<AppEntry> apps) {
         // For a simple list there is nothing to do
         // but for a Cursor we would close it here
-    }
-
-    public static class InterestingConfigChanges {
-        final Configuration lastConfiguration = new Configuration();
-        int lastDensity;
-
-        protected boolean applyNewConfig(Resources res) {
-            int configChanges = lastConfiguration.updateFrom(res.getConfiguration());
-            boolean densityChanged = lastDensity != res.getDisplayMetrics().densityDpi;
-            if (densityChanged
-                    || (configChanges & (ActivityInfo.CONFIG_LOCALE | ActivityInfo.CONFIG_UI_MODE | ActivityInfo.CONFIG_SCREEN_LAYOUT)) != 0) {
-                lastDensity = res.getDisplayMetrics().densityDpi;
-                return true;
-            }
-            return false;
-        }
     }
 
     /**
