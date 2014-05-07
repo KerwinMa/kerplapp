@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">Kerplapp</string>
+    <string name="description">This is a prototype of the peer-to-peer app store for FDroid.  You probably do not want this app, but instead you want to use the peer-to-peer features built into FDroid itself.</string>
     <string name="local_repo">Local Repo</string>
     <string name="updated_local_repo">Finished updating local repo</string>
     <string name="updating">Updating&#8230;</string>
